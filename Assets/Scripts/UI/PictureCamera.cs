@@ -5,10 +5,21 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class PictureCamera : MonoBehaviour
 {
+    public delegate void PictureDelegate(Texture2D picture);
+
     private Camera m_Camera;
 
     [SerializeField]
     private PictureFrame m_PictureFrame;
+
+    [SerializeField]
+    private string m_PictureFolder;
+    private Texture2D m_LastPicture;
+
+    private bool m_TakePicture;
+
+    public event PictureDelegate PictureTakenEvent;
+
 
     private void Awake()
     {
@@ -34,26 +45,53 @@ public class PictureCamera : MonoBehaviour
 
     public void TakePicture()
     {
-        StartCoroutine(TakeScreenShotRoutine());
+        m_TakePicture = true;
     }
 
-    public IEnumerator TakeScreenShotRoutine()
+    private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        yield return new WaitForEndOfFrame(); // it must be a coroutine 
+        if (!m_TakePicture)
+            return;
 
-        int width = m_Camera.pixelWidth;
-        int height = m_Camera.pixelHeight;
+        int width = src.width; // m_Camera.pixelWidth;
+        int height = src.height; // m_Camera.pixelHeight;
 
-        Texture2D tex = new Texture2D(width, height, TextureFormat.RGB24, false);
-        tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-        tex.Apply();
+        //RenderTexture renderTexture = new RenderTexture(width, height, 24);
+        //m_Camera.targetTexture = renderTexture;
+        //m_Camera.Render();
 
-        // Encode texture into PNG
-        var bytes = tex.EncodeToPNG();
-        Destroy(tex);
+        RenderTexture.active = src;
 
-        File.WriteAllBytes("./ScreenShot.png", bytes);
+        Texture2D picture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        picture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
 
+        picture.Apply();
+
+        RenderTexture.active = null;
+        //m_Camera.targetTexture = null;
+
+        m_LastPicture = picture;
         Debug.Log("Picture taken!");
+
+        if (PictureTakenEvent != null)
+            PictureTakenEvent(picture);
+
+        //////Destroy(tempRT); - tricky on android and other platforms, take care
+        m_TakePicture = false;
+    }
+
+    public void SavePictureToDisk()
+    {
+        if (m_LastPicture == null)
+            return;
+
+        byte[] bytes;
+        bytes = m_LastPicture.EncodeToPNG();
+
+        string path = string.Format("{0}/picture_{1}.png", m_PictureFolder, System.DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss"));
+
+        File.WriteAllBytes(path, bytes);
+
+        Debug.Log("Picture saved!");
     }
 }
