@@ -63,30 +63,42 @@ public class PictureCamera : MonoBehaviour
 
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        if (!m_TakePicture)
+        //If you forget this line, the android build will render the UI below all the camera's...
+        Graphics.Blit(src, dest);
+
+        if (m_TakePicture == false)
             return;
 
         int width = src.width;
         int height = src.height;
 
+        //Create and activate a new rendertexture
+        //RenderTexture renderTexture = new RenderTexture(width, height, 24);
+        //m_Camera.targetTexture = renderTexture;
+        //m_Camera.Render();
+
         RenderTexture.active = src;
 
+        //Create a new texture & read all pixels from the rendertexture
         Texture2D picture = new Texture2D(width, height, TextureFormat.RGB24, false);
-
-        //Flip the picture on the X axis
         picture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-        Color[] origColours = picture.GetPixels();
-        Color[] flippedColours = new Color[origColours.Length];
 
-        for (int x = 0; x < width; ++x)
-        {
-            for (int y = 0; y < height; ++y)
+        #if UNITY_EDITOR
+            //Flip the picture on the X axis (Not needed on android)
+            Color[] origColours = picture.GetPixels();
+            Color[] flippedColours = new Color[origColours.Length];
+
+            for (int x = 0; x < width; ++x)
             {
-                flippedColours[x + (y * width)] = origColours[x + ((height - y - 1) * width)];
+                for (int y = 0; y < height; ++y)
+                {
+                    flippedColours[x + (y * width)] = origColours[x + ((height - y - 1) * width)];
+                }
             }
-        }
 
-        picture.SetPixels(flippedColours);
+            picture.SetPixels(flippedColours);
+        #endif
+
         picture.Apply();
 
         RenderTexture.active = null;

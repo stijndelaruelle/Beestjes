@@ -15,7 +15,7 @@ public class PictureFrame : MonoBehaviour
         get { return m_Canvas; }
     }
 
-    [MinMaxRange(1, 500)]
+    [MinMaxRange(1, 750)]
     [SerializeField]
     private MinMaxRange m_SizeRange;
 

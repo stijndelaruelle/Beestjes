@@ -10,11 +10,6 @@ public class PictureSaveButton : MonoBehaviour
     [SerializeField]
     private PictureTakenPanel m_PictureTakenPanel;
 
-    private void Awake()
-    {
-        m_PictureCamera.PictureSavedEvent += OnPictureSaved;
-    }
-
     private void OnDestroy()
     {
         if (m_PictureCamera != null)
@@ -24,6 +19,7 @@ public class PictureSaveButton : MonoBehaviour
     public void Save()
     {
         //Save
+        m_PictureCamera.PictureSavedEvent += OnPictureSaved;
         m_PictureCamera.SavePictureToDisk();
     }
 
@@ -31,5 +27,8 @@ public class PictureSaveButton : MonoBehaviour
     {
         //Hide window
         m_PictureTakenPanel.Hide();
+
+        if (m_PictureCamera != null)
+            m_PictureCamera.PictureSavedEvent -= OnPictureSaved;
     }
 }

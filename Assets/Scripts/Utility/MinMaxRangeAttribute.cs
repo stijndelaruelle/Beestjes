@@ -57,4 +57,9 @@ public class MinMaxRange
     {
         return Random.Range(m_Min, m_Max);
     }
+
+    public bool IsWithinRange(float value)
+    {
+        return ((value >= m_Min) && (value <= m_Max));
+    }
 }

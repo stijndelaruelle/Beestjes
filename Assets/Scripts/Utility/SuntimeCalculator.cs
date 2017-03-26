@@ -17,8 +17,17 @@ using System.Diagnostics;
 //          You may use this code freely for any use.
 // 
 //  Zacky Pickholz (zacky.pickholz@gmail.com)
+//  Additions by Stijn Delaruelle
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+public enum PartOfDay
+{
+    Dawn = 0,
+    Day = 1,
+    Dusk = 2,
+    Night = 3
+}
 
 internal sealed class SuntimeCalculator
 {
@@ -212,6 +221,121 @@ internal sealed class SuntimeCalculator
 
         return true;
     }
+
+    //Additions
+    public static bool CalculateSunRiseSetTimes(double lat, double lon, DateTime date,
+                                            ref DateTime riseTime, ref DateTime setTime)
+    {
+        bool isSunrise = false;
+        bool isSunset = false;
+
+        return CalculateSunRiseSetTimes(lat, lon, date, ref riseTime, ref setTime, ref isSunrise, ref isSunset);
+    }
+
+
+    public static PartOfDay GetPartOfDay(double lat, double lon, DateTime date, ref float percentage)
+    {
+        //We could write this with some loops, but this keeps a better oversight
+
+        percentage = 0.0f;
+
+        //-----------------------------
+        // Gather all the data
+        //-----------------------------
+        double dawnDuskOffset = 1.0;
+
+        //Get sunset of the previous day
+        DateTime prevSunrise = DateTime.MinValue;
+        DateTime prevSunset = DateTime.MinValue;
+
+        CalculateSunRiseSetTimes(lat, lon, date.AddDays(-dawnDuskOffset), ref prevSunrise, ref prevSunset);
+        DateTime prevDuskEnd = prevSunset.AddHours(dawnDuskOffset);
+
+
+        //Get sunrise & sunset of the current day
+        DateTime currentSunrise = DateTime.MinValue;
+        DateTime currentSunset = DateTime.MinValue;
+
+        CalculateSunRiseSetTimes(lat, lon, date, ref currentSunrise, ref currentSunset);
+        DateTime currentDawnStart = currentSunrise.AddHours(-dawnDuskOffset);
+        DateTime currentDuskEnd = currentSunset.AddHours(dawnDuskOffset);
+
+
+        //Get sunrise of the next day
+        DateTime nextSunrise = DateTime.MinValue;
+        DateTime nextSunset = DateTime.MinValue;
+
+        CalculateSunRiseSetTimes(lat, lon, date.AddDays(dawnDuskOffset), ref nextSunrise, ref nextSunset);
+        DateTime nextDawnStart = nextSunrise.AddHours(-dawnDuskOffset);
+
+
+        //-----------------------------
+        // Calculate the part of day
+        //-----------------------------
+
+        //End of the night
+        if (date < currentDawnStart)
+        {
+            double timeUsed = (date - prevDuskEnd).TotalMilliseconds;
+            double totalTime = (prevDuskEnd - currentDawnStart).TotalMilliseconds;
+
+            percentage = (float)(timeUsed / totalTime);
+
+            UnityEngine.Debug.Log("NIGHT // Dusk end: " + prevDuskEnd + " Dawn start: " + currentDawnStart + " Percentage: " + percentage);
+            return PartOfDay.Night;
+        }
+
+        //Dawn
+        if (date >= currentDawnStart && date <= currentSunrise)
+        {
+            double timeUsed = (date - currentDawnStart).TotalMilliseconds;
+            double totalTime = (currentSunrise - currentDawnStart).TotalMilliseconds;
+
+            percentage = (float)(timeUsed / totalTime);
+
+            UnityEngine.Debug.Log("DAWN // Dawn start: " + currentDawnStart + " Sunrise: " + currentSunrise + " Percentage: " + percentage);
+            return PartOfDay.Dawn;
+        }
+
+        //Day
+        if (date > currentSunrise && date < currentSunset)
+        {
+            double timeUsed = (date - currentSunrise).TotalMilliseconds;
+            double totalTime = (currentSunset - currentSunrise).TotalMilliseconds;
+
+            percentage = (float)(timeUsed / totalTime);
+
+            UnityEngine.Debug.Log("DAY // Sunrise: " + currentSunrise + " Sunset: " + currentSunset + " Percentage: " + percentage);
+            return PartOfDay.Day;
+        }
+
+        //Dusk
+        if (date >= currentSunset && date <= currentDuskEnd)
+        {
+            double timeUsed = (date - currentSunset).TotalMilliseconds;
+            double totalTime = (currentDuskEnd - currentSunset).TotalMilliseconds;
+
+            percentage = (float)(timeUsed / totalTime);
+
+            UnityEngine.Debug.Log("DUSK // Sunset: " + currentSunset + " Dusk ends: " + currentDuskEnd + " Percentage: " + percentage);
+            return PartOfDay.Dusk;
+        }
+
+        //Start of the night
+        if (date > currentDuskEnd)
+        {
+            double timeUsed = (date - currentDuskEnd).TotalMilliseconds;
+            double totalTime = (nextDawnStart - currentDuskEnd).TotalMilliseconds;
+
+            percentage = (float)(timeUsed / totalTime);
+
+            UnityEngine.Debug.Log("NIGHT // Dusk ended: " + currentDuskEnd + " Dawn starts: " + nextDawnStart + " Percentage: " + percentage);
+            return PartOfDay.Night;
+        }
+
+        return PartOfDay.Night;
+    }
+
 
     #region Private Methods
 
