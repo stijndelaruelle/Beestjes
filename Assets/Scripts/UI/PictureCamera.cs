@@ -6,6 +6,7 @@ using UnityEngine;
 public class PictureCamera : MonoBehaviour
 {
     public delegate void PictureDelegate(Texture2D picture);
+    public delegate void PathDelegate(string path);
 
     private Camera m_Camera;
 
@@ -14,12 +15,24 @@ public class PictureCamera : MonoBehaviour
 
     [SerializeField]
     private string m_PictureFolder;
+
     private Texture2D m_LastPicture;
+    public Texture2D LastPicture
+    {
+        get { return m_LastPicture; }
+    }
+
+    private string m_LastPicturePath;
+    public string LastPicturePath
+    {
+        get { return m_LastPicturePath; }
+    }
 
     private bool m_TakePicture;
+    private bool m_PictureSaved;
 
     public event PictureDelegate PictureTakenEvent;
-
+    public event PathDelegate PictureSavedEvent;
 
     private void Awake()
     {
@@ -53,31 +66,39 @@ public class PictureCamera : MonoBehaviour
         if (!m_TakePicture)
             return;
 
-        int width = src.width; // m_Camera.pixelWidth;
-        int height = src.height; // m_Camera.pixelHeight;
-
-        //RenderTexture renderTexture = new RenderTexture(width, height, 24);
-        //m_Camera.targetTexture = renderTexture;
-        //m_Camera.Render();
+        int width = src.width;
+        int height = src.height;
 
         RenderTexture.active = src;
 
         Texture2D picture = new Texture2D(width, height, TextureFormat.RGB24, false);
-        picture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
 
+        //Flip the picture on the X axis
+        picture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        Color[] origColours = picture.GetPixels();
+        Color[] flippedColours = new Color[origColours.Length];
+
+        for (int x = 0; x < width; ++x)
+        {
+            for (int y = 0; y < height; ++y)
+            {
+                flippedColours[x + (y * width)] = origColours[x + ((height - y - 1) * width)];
+            }
+        }
+
+        picture.SetPixels(flippedColours);
         picture.Apply();
 
         RenderTexture.active = null;
-        //m_Camera.targetTexture = null;
 
         m_LastPicture = picture;
-        Debug.Log("Picture taken!");
+        m_TakePicture = false;
+        m_PictureSaved = false;
 
         if (PictureTakenEvent != null)
             PictureTakenEvent(picture);
 
-        //////Destroy(tempRT); - tricky on android and other platforms, take care
-        m_TakePicture = false;
+        Debug.Log("Picture taken!");
     }
 
     public void SavePictureToDisk()
@@ -85,12 +106,29 @@ public class PictureCamera : MonoBehaviour
         if (m_LastPicture == null)
             return;
 
+        //Avoids saving the same picture multiple times
+        if (m_PictureSaved)
+            return;
+
         byte[] bytes;
         bytes = m_LastPicture.EncodeToPNG();
 
-        string path = string.Format("{0}/picture_{1}.png", m_PictureFolder, System.DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss"));
+        string folderPath = m_PictureFolder;
+
+        #if UNITY_ANDROID && !UNITY_EDITOR
+            folderPath = DataPathPlugin.GetFirstWriteableExternalDataPath();
+            Debug.Log("Chosen folder: " + folderPath);
+        #endif
+
+        string path = string.Format("{0}/picture_{1}.png", folderPath, System.DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss"));
 
         File.WriteAllBytes(path, bytes);
+
+        m_LastPicturePath = path;
+        m_PictureSaved = true;
+
+        if (PictureSavedEvent != null)
+            PictureSavedEvent(path);
 
         Debug.Log("Picture saved!");
     }

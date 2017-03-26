@@ -39,6 +39,7 @@ public static class DataPathPlugin
         return GetDataPathPlugin().Call<string>("GetExternalDataPath", index);
     }
 
+
     public static bool CanReadExternalDataPath(int index)
     {
         if (GetDataPathPlugin() == null)
@@ -53,6 +54,19 @@ public static class DataPathPlugin
             return false;
 
         return GetDataPathPlugin().Call<bool>("CanWriteExternalDataPath", index);
+    }
+
+    public static string GetFirstWriteableExternalDataPath()
+    {
+        for (int i = 0; i < GetExternalDataPathCount(); ++i)
+        {
+            if (CanReadExternalDataPath(i) && CanWriteExternalDataPath(i))
+            {
+                return GetExternalDataPath(i);
+            }
+        }
+
+        return "";
     }
 
     //Internal
@@ -79,6 +93,7 @@ public static class DataPathPlugin
 
         return GetDataPathPlugin().Call<string>("GetInternalDataPathCanonical");
     }
+
 
     public static bool CanReadInternalDataPath()
     {
