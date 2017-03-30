@@ -6,6 +6,42 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Beestjes/Animal Definition")]
 public class AnimalDefinition : ScriptableObject
 {
+    [Serializable]
+    public class AppearanceTime
+    {
+        [SerializeField]
+        private PartOfDay m_PartOfDay;
+        public PartOfDay PartOfDay
+        {
+            get { return m_PartOfDay; }
+        }
+
+        [MinMaxRange(0, 100)]
+        [SerializeField]
+        private MinMaxRange m_PercentageOfPODRange;
+        public MinMaxRange PercantageOfPODRange
+        {
+            get { return m_PercentageOfPODRange; }
+        }
+
+        [Range(0, 100)]
+        [SerializeField]
+        private float m_PercentageLuck;
+        public float PercentageLuck
+        {
+            get { return m_PercentageLuck; }
+        }
+
+        [MinMaxRange(0, 3600)]
+        [Tooltip("If the animal appears, how long does he stay? (in minutes)")]
+        [SerializeField]
+        private MinMaxRange m_StayTime;
+        public MinMaxRange StayTime
+        {
+            get { return m_StayTime; }
+        }
+    }
+
     //Add date requirements later
     //[Header("Date")]
     //[Space(5)]
@@ -16,7 +52,7 @@ public class AnimalDefinition : ScriptableObject
 
     //Weather requirements
 
-    [Header("Appearance")]
+    [Header("Visuals")]
     [Space(5)]
     [SerializeField]
     private Sprite m_Sprite;
@@ -25,88 +61,38 @@ public class AnimalDefinition : ScriptableObject
         get { return m_Sprite; }
     }
 
-    [Header ("Day")]
+    [Header("Appearance Times")]
     [Space(5)]
-    [MinMaxRange(0, 100)]
     [SerializeField]
-    private MinMaxRange m_DayAppearanceTime;
+    private List<AppearanceTime> m_AppearanceTimes;
 
-    [Range(0, 100)]
-    [SerializeField]
-    private float m_DayAppearancePercentage;
-
-    [Header("Night")]
-    [Space(5)]
-    [MinMaxRange(0, 100)]
-    [SerializeField]
-    private MinMaxRange m_NightAppearanceTime;
-
-    [Range(0, 100)]
-    [SerializeField]
-    private float m_NightAppearancePercentage;
-
-    [Header("Dawn")]
-    [Space(5)]
-    [MinMaxRange(0, 100)]
-    [SerializeField]
-    private MinMaxRange m_DawnAppearanceTime;
-
-    [Range(0, 100)]
-    [SerializeField]
-    private float m_DawnAppearancePercentage;
-
-    [Header("Dusk")]
-    [Space(5)]
-    [MinMaxRange(0, 100)]
-    [SerializeField]
-    private MinMaxRange m_DuskAppearanceTime;
-
-    [Range(0, 100)]
-    [SerializeField]
-    private float m_DuskAppearancePercentage;
-
-    private List<MinMaxRange> m_AppearanceTimes;
-    private List<float> m_AppearancePercentages;
-
-    private void Initialize()
+    //Returns how long the animal will spawn for
+    public float CanSpawn(PartOfDay partOfDay, float percentageOfDay)
     {
-        //if (m_AppearanceTimes.Count > 0 && m_AppearancePercentages.Count > 0)
-        //    return;
+        percentageOfDay *= 100.0f;
 
-        //For easy access, fix this by writing a custom property drawer
-        m_AppearanceTimes = new List<MinMaxRange>();
-        m_AppearanceTimes.Add(m_DawnAppearanceTime);
-        m_AppearanceTimes.Add(m_DayAppearanceTime);
-        m_AppearanceTimes.Add(m_DuskAppearanceTime);
-        m_AppearanceTimes.Add(m_NightAppearanceTime);
+        foreach(AppearanceTime appearanceTime in m_AppearanceTimes)
+        {
+            if (appearanceTime.PartOfDay == partOfDay)
+            {
+                //Check if we are within range
+                bool isWithinRange = appearanceTime.PercantageOfPODRange.IsWithinRange(percentageOfDay);
+                if (isWithinRange == false)
+                    return 0.0f;
 
-        m_AppearancePercentages = new List<float>();
-        m_AppearancePercentages.Add(m_DawnAppearancePercentage);
-        m_AppearancePercentages.Add(m_DayAppearancePercentage);
-        m_AppearancePercentages.Add(m_DuskAppearancePercentage);
-        m_AppearancePercentages.Add(m_NightAppearancePercentage);
-    }
+                //Check if we get trough the luck factor
+                float rand = UnityEngine.Random.Range(0.0f, 10000.0f);
+                rand /= 100.0f;
 
-    public bool CanSpawn(PartOfDay partOfDay, float percentage)
-    {
-        Initialize();
+                if (rand > appearanceTime.PercentageLuck)
+                    return 0.0f;
 
-        percentage *= 100.0f;
+                //If we do, how long does he stay?
+                float stayTime = appearanceTime.StayTime.GetRandomValue();
+                return stayTime;
+            }
+        }
 
-        int arrayID = (int)partOfDay;
-
-        MinMaxRange appearanceTime = m_AppearanceTimes[arrayID];
-        float appearancePercentage = m_AppearancePercentages[arrayID];
-
-        //Check if we are within range
-        bool isWithinRange = appearanceTime.IsWithinRange(percentage);
-        if (isWithinRange == false)
-            return false;
-
-        //Check if we get trough the luck factor
-        float rand = UnityEngine.Random.Range(0.0f, 10000.0f);
-        rand /= 100.0f;
-
-        return (rand <= appearancePercentage);
+        return 0.0f;
     }
 }

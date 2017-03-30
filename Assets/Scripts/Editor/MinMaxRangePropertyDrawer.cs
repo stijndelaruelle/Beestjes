@@ -8,38 +8,38 @@ using System.Collections.Generic;
 [CustomPropertyDrawer(typeof(MinMaxRangeAttribute))]
 public class MinMaxRangeDrawer : PropertyDrawer
 {
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        return base.GetPropertyHeight(property, label);
-    }
-
-    // Draw the property inside the given rect
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
-        // Now draw the property as a Slider or an IntSlider based on whether it’s a float or integer.
-        if (property.type != "MinMaxRange")
-        {
-            Debug.LogWarning("Use only with MinMaxRange type");
-            return;
-        }
+        // Using BeginProperty / EndProperty on the parent property means that
+        // prefab override logic works on the entire property.
+        EditorGUI.BeginProperty(position, label, property);
+
+        // Draw label
+        position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
+
+        // Don't make child fields be indented
+        var indent = EditorGUI.indentLevel;
+        EditorGUI.indentLevel = 0;
 
         MinMaxRangeAttribute range = attribute as MinMaxRangeAttribute;
-        SerializedProperty minValue = property.FindPropertyRelative("m_Min");
-        SerializedProperty maxValue = property.FindPropertyRelative("m_Max");
-        float newMin = minValue.floatValue;
-        float newMax = maxValue.floatValue;
+        SerializedProperty minProperty = property.FindPropertyRelative("m_Min");
+        SerializedProperty maxProperty = property.FindPropertyRelative("m_Max");
 
-        float minBoxX = (position.width * 0.43f);
-        float maxBoxX = position.width - 37.0f;
+        // Calculate rects
+        Rect minRect = new Rect(position.x, position.y, 50, position.height);
+        Rect maxRect = new Rect(position.x + position.width - 50, position.y, 50, position.height);
+        Rect sliderRect = new Rect(position.x + 55, position.y, position.width - 110, position.height);
 
-        EditorGUI.LabelField(new Rect(position.x, position.y, position.width - minBoxX, position.height), label);
+        // Draw fields - passs GUIContent.none to each so they are drawn without labels
+        float minValue = EditorGUI.FloatField(minRect, minProperty.floatValue);
+        float maxValue = EditorGUI.FloatField(maxRect, maxProperty.floatValue);
+        EditorGUI.MinMaxSlider(sliderRect, ref minValue, ref maxValue, range.MinLimit, range.MaxLimit);
 
-        newMin = Mathf.Clamp(EditorGUI.FloatField(new Rect(minBoxX, position.y, 52.0f, position.height), newMin), range.MinLimit, newMax);
-        newMax = Mathf.Clamp(EditorGUI.FloatField(new Rect(maxBoxX, position.y, 52.0f, position.height), newMax), newMin, range.MaxLimit);
+        // Set indent back to what it was
+        EditorGUI.indentLevel = indent;
+        EditorGUI.EndProperty();
 
-        EditorGUI.MinMaxSlider(new Rect(minBoxX + 57.0f, position.y, maxBoxX - (minBoxX + 65.0f), position.height), ref newMin, ref newMax, range.MinLimit, range.MaxLimit);
-
-        minValue.floatValue = newMin;
-        maxValue.floatValue = newMax;
+        minProperty.floatValue = minValue;
+        maxProperty.floatValue = maxValue;
     }
 }
