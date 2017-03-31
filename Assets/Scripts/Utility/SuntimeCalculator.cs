@@ -329,7 +329,8 @@ internal sealed class SuntimeCalculator
 
             percentage = (float)(timeUsed / totalTime);
 
-            UnityEngine.Debug.Log("NIGHT // Dusk ended: " + currentDuskEnd + " Dawn starts: " + nextDawnStart + " Percentage: " + percentage);
+            UnityEngine.Debug.Log("NIGHT // Dusk ended: " + currentDuskEnd + " Dawn starts: " + nextDawnStart + " Percentage: " + percentage
+                                  + " asktime: " + date.ToString());
             return PartOfDay.Night;
         }
 

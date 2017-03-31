@@ -8,6 +8,8 @@ using UnityEngine;
 //Trees, bushes, benches, etc... anything that a user can place
 public class WorldObject : MonoBehaviour
 {
+    public delegate void WorldObjectDelegate(WorldObject worldObject);
+
     [SerializeField]
     private List<AnimalSlot> m_AnimalSlots;
 
@@ -16,10 +18,50 @@ public class WorldObject : MonoBehaviour
     private int m_LifeTime;
     private DateTime m_EndTime; //Time when this object grows or decays
 
-    public void Serialize()
+    public event WorldObjectDelegate DestroyEvent;
+
+    public void Tick(DateTime dateTime, PartOfDay partOfDay, float percentageOfPODPassed)
     {
+        if (m_AnimalSlots != null)
+            return;
+
+        //Check if we should be destroyed
+        //if (dateTime >= m_EndTime)
+        //{
+        //    DestroyEvent(this);
+        //    return;
+        //}
+
+        //Tick all the animal slots
         foreach (AnimalSlot animalSlot in m_AnimalSlots)
-            animalSlot.Serialize();
+        {
+            animalSlot.Tick(dateTime, partOfDay, percentageOfPODPassed);
+        }
+    }
+
+    public void Serialize(JSONClass worldObjectNode)
+    {
+        string prefabName = gameObject.name.Remove(gameObject.name.Length - 7); //7 = length of "(clone)"
+        Vector3 position = transform.position;
+        bool isFlipped = (transform.localScale.x < 0);
+
+        worldObjectNode.Add("prefab_name",  new JSONData(prefabName));
+        worldObjectNode.Add("end_time",     new JSONData(m_EndTime.ToString("dd/MM/yyyy HH:mm:ss")));
+        worldObjectNode.Add("position_x",   new JSONData(position.x));
+        worldObjectNode.Add("position_y",   new JSONData(position.y));
+        worldObjectNode.Add("position_z",   new JSONData(position.z));
+        worldObjectNode.Add("is_flipped",   new JSONData(isFlipped));
+
+        JSONArray animalSlotArrayNode = new JSONArray();
+        foreach (AnimalSlot animalSlot in m_AnimalSlots)
+        {
+            JSONClass animalSlotNode = new JSONClass();
+            animalSlot.Serialize(animalSlotNode);
+
+            animalSlotArrayNode.Add(animalSlotNode);
+        }
+
+        worldObjectNode.Add("animal_slots", animalSlotArrayNode);
     }
 
     public void Deserialize(JSONClass worldObjectNode)

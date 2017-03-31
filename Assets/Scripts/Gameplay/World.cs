@@ -10,36 +10,121 @@ public class World : MonoBehaviour
 {
     public delegate void WorldTickDelegate(PartOfDay partOfDay, float percentageOfPODPassed);
 
+    [Tooltip("Time between ticks (in minutes)")]
+    [SerializeField]
+    private int m_TimeBetweenTicks;
+
+    [Tooltip("Max ticks executed at the same time")]
+    [SerializeField]
+    private int m_MaxTicks;
+
     [SerializeField]
     private string m_DebugSaveFilePath;
 
     [SerializeField]
     private string m_SaveFileName;
 
-    private DateTime m_LastTickTime;
+    private DateTime m_LastTickTime = DateTime.MinValue;
     private List<WorldObject> m_WorldObjects;
 
     private void Awake()
     {
+        m_LastTickTime = DateTime.MinValue;
         m_WorldObjects = new List<WorldObject>();
     }
 
     private void Start()
     {
-        //Path is different on Android
         string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
-        //Serialize(filePath);
         Deserialize(filePath);
+
+        TickLoop();
     }
 
-    private void Tick()
+    private void Update()
     {
-        //Calculate how much time has passed since we last closed the app
-        //Cache this somewhere, this really only needs to be calculated once per gametick (15 min)
-        float percentageOfPODPassed = 0.0f;
-        PartOfDay partOfDay = SuntimeCalculator.GetPartOfDay(52.079208, 5.140324, DateTime.Now, ref percentageOfPODPassed);
+        //Debug commands
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
+            Serialize(filePath);
+        }
+
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
+            Deserialize(filePath);
+        }
     }
 
+    private void TickLoop()
+    {
+        //If we haven't played yet
+        if (m_LastTickTime == DateTime.MinValue)
+        {
+            Tick(DateTime.UtcNow);
+            return;
+        }
+
+        //Calculate the time between now and the last time we ticked
+        TimeSpan timeSpan = DateTime.UtcNow - m_LastTickTime;
+
+        //Calculate how many ticks that is
+        int tickCount = Mathf.FloorToInt((float)timeSpan.TotalMinutes) / m_TimeBetweenTicks;
+        DateTime currentDateTime = m_LastTickTime;
+
+        if (tickCount >= m_MaxTicks)
+        {
+            int diff = tickCount - m_MaxTicks;
+            currentDateTime = currentDateTime.AddMinutes(diff * m_TimeBetweenTicks);
+
+            tickCount = m_MaxTicks;
+        }
+
+        for (int i = 0; i < tickCount; ++i)
+        {
+            currentDateTime = currentDateTime.AddMinutes(m_TimeBetweenTicks);
+            Tick(currentDateTime);
+        }
+    }
+
+    private void Tick(DateTime dateTime)
+    {
+        float percentageOfPODPassed = 0.0f;
+        PartOfDay partOfDay = SuntimeCalculator.GetPartOfDay(52.079208, 5.140324, dateTime, ref percentageOfPODPassed);
+
+        foreach (WorldObject worldObject in m_WorldObjects)
+        {
+            worldObject.Tick(dateTime, partOfDay, percentageOfPODPassed);
+        }
+
+        m_LastTickTime = dateTime;
+    }
+
+    private void ClearWorld()
+    {
+        foreach (WorldObject worldObject in m_WorldObjects)
+        {
+            worldObject.DestroyEvent -= OnWorldObjectDestroyed;
+            Destroy(worldObject.gameObject);
+        }
+
+        m_WorldObjects.Clear();
+    }
+
+    //Events
+    private void OnWorldObjectDestroyed(WorldObject worldObject)
+    {
+        if (m_WorldObjects == null)
+            return;
+
+        worldObject.DestroyEvent -= OnWorldObjectDestroyed;
+        Destroy(worldObject.gameObject);
+
+        m_WorldObjects.Remove(worldObject);
+    }
+
+    //Serialization
     public bool Serialize(string filePath)
     {
         //Create the root object
@@ -63,7 +148,18 @@ public class World : MonoBehaviour
 
     private void SerializeJSON(JSONNode rootNode)
     {
-        rootNode.Add("last_refresh_time", new JSONData(DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")));
+        rootNode.Add("last_tick_time", new JSONData(m_LastTickTime.ToString("dd/MM/yyyy HH:mm:ss")));
+
+        JSONArray worldObjectArrayNode = new JSONArray();
+        foreach (WorldObject worldObject in m_WorldObjects)
+        {
+            JSONClass worldObjectNode = new JSONClass();
+            worldObject.Serialize(worldObjectNode);
+
+            worldObjectArrayNode.Add(worldObjectNode);
+        }
+
+        rootNode.Add("world_objects", worldObjectArrayNode);
     }
 
     public bool Deserialize(string filePath)
@@ -102,10 +198,10 @@ public class World : MonoBehaviour
 
     private void DeserializeJSON(JSONNode rootNode)
     {
-        m_WorldObjects.Clear();
+        ClearWorld();
 
         //Read the last refresh timestamp
-        JSONNode lastRefreshTimeNode = rootNode["last_refresh_time"];
+        JSONNode lastRefreshTimeNode = rootNode["last_tick_time"];
         if (lastRefreshTimeNode != null)
         {
             try
@@ -138,8 +234,10 @@ public class World : MonoBehaviour
                 worldObject.Deserialize(worldObjectNode);
 
                 //Add him to our list
+                worldObject.DestroyEvent += OnWorldObjectDestroyed;
                 m_WorldObjects.Add(worldObject);
             }
         }
     }
+
 }

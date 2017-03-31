@@ -1,33 +1,23 @@
-{
-	"last_refresh_time": "30/03/2017 23:15:32", 
-	"world_objects":
-	[
-		{
-			"prefab_name": "OakTree",
-			"end_time": "30/03/2017 23:15:32",
-			"position_x": -1,
-			"position_y": -1,
-			"position_z": 0,
-			"is_flipped": false,
-			"animal_slots":
-			[
-				{
-					"animal_id": 0,
-					"end_time": "02/03/2017 23:15:32"
-				},
-				{
-					"animal_id": 0,
-					"end_time": "05/03/2017 02:15:32"
-				}
-			]
-		},
-		{
-			"prefab_name": "OakTree",
-			"spawn_time": "02/03/2017 23:15:32",
-			"position_x": 1,
-			"position_y": 2,
-			"position_z": 3,
-			"is_flipped": false
-		}
-	]
-}
+{ 
+  "last_tick_time": "30/03/2017 23:15:32", 
+  "world_objects": [ 
+    { 
+      "prefab_name": "OakTree", 
+      "end_time": "30/03/2017 23:15:32", 
+      "position_x": -1, 
+      "position_y": -1, 
+      "position_z": 0, 
+      "is_flipped": true, 
+      "animal_slots": [ 
+        { 
+          "animal_id": 0, 
+          "end_time": "02/03/2017 23:15:32"
+          }, 
+        { 
+          "animal_id": 0, 
+          "end_time": "05/03/2017 02:15:32"
+          }
+        ]
+      }
+    ]
+  }

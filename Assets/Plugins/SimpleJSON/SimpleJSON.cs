@@ -1007,6 +1007,7 @@ namespace SimpleJSON
 			case JSONBinaryTag.DoubleValue:
 			case JSONBinaryTag.FloatValue:
 			case JSONBinaryTag.IntValue:
+            case JSONBinaryTag.BoolValue: //Stijn: Added
 				return m_Data;
 			case JSONBinaryTag.Value:
 				return string.Format ("\"{0}\"", Escape (m_Data));

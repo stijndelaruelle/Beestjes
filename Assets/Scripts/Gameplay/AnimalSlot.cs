@@ -14,7 +14,7 @@ public class AnimalSlot : MonoBehaviour
     private List<AnimalDefinition> m_AnimalDefinitions;
     private AnimalDefinition m_CurrentAnimal;
 
-    private DateTime m_TimeOccupied; //Time until no new animal will spawn
+    private DateTime m_EndTime; //Time until no new animal will spawn
 
     private void Awake()
     {
@@ -24,10 +24,10 @@ public class AnimalSlot : MonoBehaviour
         m_CurrentAnimal = null;
     }
 
-    public void PickAnimal(DateTime dateTime, PartOfDay partOfDay, float percentageOfPODPassed)
+    public void Tick(DateTime dateTime, PartOfDay partOfDay, float percentageOfPODPassed)
     {
         //If we are still occupied, nothing happens
-        if (dateTime < m_TimeOccupied)
+        if (dateTime < m_EndTime)
             return;
 
         //2 lists that run in sync
@@ -56,7 +56,7 @@ public class AnimalSlot : MonoBehaviour
         int randID = UnityEngine.Random.Range(0, availableAnimals.Count);
         SetCurrentAnimal(availableAnimals[randID]);
 
-        m_TimeOccupied = dateTime.AddMinutes(stayTimes[randID]);
+        m_EndTime = dateTime.AddMinutes(stayTimes[randID]);
     }
 
     private void SetCurrentAnimal(AnimalDefinition animal)
@@ -70,15 +70,26 @@ public class AnimalSlot : MonoBehaviour
     }
 
 
-    public void Serialize()
+    public void Serialize(JSONClass animalSlotNode)
     {
-
+        int currentAnimalID = m_AnimalDefinitions.IndexOf(m_CurrentAnimal);
+        animalSlotNode.Add("animal_id", new JSONData(currentAnimalID));
+        animalSlotNode.Add("end_time", new JSONData(m_EndTime.ToString("dd/MM/yyyy HH:mm:ss")));
     }
 
     public void Deserialize(JSONClass animalSlotNode)
     {
         //Animal ID
         int currentAnimalID = animalSlotNode["animal_id"].AsInt;
+
+        //No animal is present
+        if (currentAnimalID == -1)
+        {
+            SetCurrentAnimal(null);
+            m_EndTime = DateTime.MinValue;
+            return;
+        }
+
         if (currentAnimalID < 0 || currentAnimalID >= m_AnimalDefinitions.Count)
         {
             throw new System.Exception("A save game \"animal slot\" contains an invalid id!");
@@ -92,7 +103,7 @@ public class AnimalSlot : MonoBehaviour
         {
             try
             {
-                m_TimeOccupied = DateTime.ParseExact(placeTimeNode.Value, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                m_EndTime = DateTime.ParseExact(placeTimeNode.Value, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
             }
             catch (Exception e)
             {
