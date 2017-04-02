@@ -3,8 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SunRotator : MonoBehaviour
+public class SunMoonRotator : MonoBehaviour
 {
+    public delegate void SunMoonDelegate();
+    public event SunMoonDelegate RefreshEvent;
+
     private void Start()
     {
         Refresh();
@@ -52,6 +55,9 @@ public class SunRotator : MonoBehaviour
         }
         
         transform.localRotation = Quaternion.Euler(0.0f, 0.0f, degrees);
+
+        if (RefreshEvent != null)
+            RefreshEvent();
     }
 
 }

@@ -40,7 +40,7 @@ public class ShowPictureFrameButton : MonoBehaviour
         }
         else
         {
-            m_RectTransform.DOAnchorPosY(0.0f, 1).SetEase(Ease.OutBounce);
+            m_RectTransform.DOAnchorPosY(10.0f, 1).SetEase(Ease.OutBounce);
         }
     }
 }

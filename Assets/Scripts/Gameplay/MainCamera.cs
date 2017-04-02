@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.PostProcessing;
 
 public class MainCamera : MonoBehaviour
 {
@@ -8,7 +9,7 @@ public class MainCamera : MonoBehaviour
     private PictureFrame m_PictureFrame;
 
     [SerializeField]
-    private PostProcessEffect m_PostProcessEffect;
+    private PostProcessingBehaviour m_PostProcessEffect;
 
     private void Start()
     {

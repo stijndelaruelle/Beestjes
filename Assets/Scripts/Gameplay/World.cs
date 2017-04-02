@@ -19,7 +19,7 @@ public class World : MonoBehaviour
     private int m_MaxTicks;
 
     [SerializeField]
-    private string m_DebugSaveFilePath;
+    private string m_RootPath;
 
     [SerializeField]
     private string m_SaveFileName;
@@ -35,6 +35,7 @@ public class World : MonoBehaviour
 
     private void Start()
     {
+        DetermineRootPath();
         Deserialize();
         TickLoop();
     }
@@ -49,9 +50,29 @@ public class World : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F2))
         {
-            string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
             Deserialize();
         }
+    }
+
+    private void DetermineRootPath()
+    {
+        //No more Application.persistentDataPath as it will never return the SD card.
+
+        #if UNITY_ANDROID && !UNITY_EDITOR  
+            int numberOfStorageDevices = DataPathPlugin.GetExternalDataPathCount();
+
+            //Backwards as we prefer an external SD card!
+            for (int i = (numberOfStorageDevices - 1); i >= 0; --i)
+            {
+                if (DataPathPlugin.CanReadExternalDataPath(i) && DataPathPlugin.CanWriteExternalDataPath(i))
+                {
+                    m_RootPath = DataPathPlugin.GetExternalDataPath(i);
+                    break;
+                }
+            }
+        #endif
+
+        Debug.Log("Registered root path: " + m_RootPath);
     }
 
     private void TickLoop()
@@ -100,6 +121,7 @@ public class World : MonoBehaviour
             Tick(currentDateTime);
         }
 
+        m_LastTickTime = GameClock.Instance.GetDateTime();
         Serialize();
     }
 
@@ -170,7 +192,7 @@ public class World : MonoBehaviour
                 jsonStr = rootObject.ToJSON(0);
         #endif
 
-        string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
+        string filePath = m_RootPath + "/" + m_SaveFileName;
         File.WriteAllText(filePath, jsonStr);
 
         Debug.Log("Save game succesfully saved!");
@@ -199,7 +221,7 @@ public class World : MonoBehaviour
         string fileText = "";
         try
         {
-            string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
+            string filePath = m_RootPath + "/" + m_SaveFileName;
             fileText = File.ReadAllText(filePath);
         }
         catch (Exception e)
