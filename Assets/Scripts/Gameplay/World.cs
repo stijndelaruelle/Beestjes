@@ -35,9 +35,7 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
-        Deserialize(filePath);
-
+        Deserialize();
         TickLoop();
     }
 
@@ -46,28 +44,30 @@ public class World : MonoBehaviour
         //Debug commands
         if (Input.GetKeyDown(KeyCode.F1))
         {
-            string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
-            Serialize(filePath);
+            Serialize();
         }
 
         if (Input.GetKeyDown(KeyCode.F2))
         {
             string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
-            Deserialize(filePath);
+            Deserialize();
         }
     }
 
     private void TickLoop()
     {
+        DateTime now = GameClock.Instance.GetDateTime();
+
         //If we haven't played yet
         if (m_LastTickTime == DateTime.MinValue)
         {
-            Tick(DateTime.UtcNow);
+            Tick(now);
+            Serialize();
             return;
         }
 
         //Calculate the time between now and the last time we ticked
-        TimeSpan timeSpan = DateTime.UtcNow - m_LastTickTime;
+        TimeSpan timeSpan = now - m_LastTickTime;
 
         //Calculate how many ticks that is
         int tickCount = Mathf.FloorToInt((float)timeSpan.TotalMinutes) / m_TimeBetweenTicks;
@@ -81,11 +81,26 @@ public class World : MonoBehaviour
             tickCount = m_MaxTicks;
         }
 
+        if (tickCount <= 0)
+        {
+            //Check if there are any animals at all, do 1 tick to up the chances
+            foreach (WorldObject worldObject in m_WorldObjects)
+            {
+                bool hasAnimal = worldObject.HasAnimal();
+                if (hasAnimal == true)
+                    return;
+            }
+
+            tickCount = 1;
+        }
+
         for (int i = 0; i < tickCount; ++i)
         {
             currentDateTime = currentDateTime.AddMinutes(m_TimeBetweenTicks);
             Tick(currentDateTime);
         }
+
+        Serialize();
     }
 
     private void Tick(DateTime dateTime)
@@ -112,6 +127,21 @@ public class World : MonoBehaviour
         m_WorldObjects.Clear();
     }
 
+    public WorldObject SpawnWorldObject(string prefabName, Vector3 position)
+    {
+        GameObject go = GameObject.Instantiate(Resources.Load(prefabName), position, Quaternion.identity) as GameObject;
+        WorldObject worldObject = go.GetComponent<WorldObject>();
+
+        if (worldObject == null)
+            throw new System.Exception("Couldn't spawn world object: " + prefabName);
+
+        //Add him to our list
+        worldObject.DestroyEvent += OnWorldObjectDestroyed;
+        m_WorldObjects.Add(worldObject);
+
+        return worldObject;
+    }
+
     //Events
     private void OnWorldObjectDestroyed(WorldObject worldObject)
     {
@@ -125,7 +155,7 @@ public class World : MonoBehaviour
     }
 
     //Serialization
-    public bool Serialize(string filePath)
+    public bool Serialize()
     {
         //Create the root object
         JSONClass rootObject = new JSONClass();
@@ -140,6 +170,7 @@ public class World : MonoBehaviour
                 jsonStr = rootObject.ToJSON(0);
         #endif
 
+        string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
         File.WriteAllText(filePath, jsonStr);
 
         Debug.Log("Save game succesfully saved!");
@@ -162,12 +193,13 @@ public class World : MonoBehaviour
         rootNode.Add("world_objects", worldObjectArrayNode);
     }
 
-    public bool Deserialize(string filePath)
+    public bool Deserialize()
     {
         //Read the file
         string fileText = "";
         try
         {
+            string filePath = m_DebugSaveFilePath + "/" + m_SaveFileName;
             fileText = File.ReadAllText(filePath);
         }
         catch (Exception e)
@@ -225,17 +257,8 @@ public class World : MonoBehaviour
                 string prefabName = worldObjectNode["prefab_name"].Value;
 
                 //Spawn the prefab
-                GameObject go = GameObject.Instantiate(Resources.Load(prefabName)) as GameObject;
-                WorldObject worldObject = go.GetComponent<WorldObject>();
-
-                if (worldObject == null)
-                    throw new System.Exception("Couldn't spawn world object: " + prefabName);
-
+                WorldObject worldObject = SpawnWorldObject(prefabName, Vector3.zero);
                 worldObject.Deserialize(worldObjectNode);
-
-                //Add him to our list
-                worldObject.DestroyEvent += OnWorldObjectDestroyed;
-                m_WorldObjects.Add(worldObject);
             }
         }
     }

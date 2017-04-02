@@ -1,21 +1,51 @@
 { 
-  "last_tick_time": "30/03/2017 23:15:32", 
+  "last_tick_time": "02/04/2017 02:03:54", 
   "world_objects": [ 
     { 
-      "prefab_name": "OakTree", 
-      "end_time": "30/03/2017 23:15:32", 
-      "position_x": -1, 
-      "position_y": -1, 
+      "prefab_name": "Tree", 
+      "end_time": "01/01/0001 00:00:00", 
+      "position_x": -2.433333, 
+      "position_y": -0.4111111, 
       "position_z": 0, 
-      "is_flipped": true, 
+      "is_flipped": false, 
       "animal_slots": [ 
         { 
-          "animal_id": 0, 
-          "end_time": "02/03/2017 23:15:32"
+          "animal_id": -1, 
+          "end_time": "01/01/0001 00:00:00"
           }, 
         { 
-          "animal_id": 0, 
-          "end_time": "05/03/2017 02:15:32"
+          "animal_id": 1, 
+          "end_time": "02/04/2017 02:37:35"
+          }, 
+        { 
+          "animal_id": -1, 
+          "end_time": "01/01/0001 00:00:00"
+          }, 
+        { 
+          "animal_id": -1, 
+          "end_time": "01/01/0001 00:00:00"
+          }
+        ]
+      }, 
+    { 
+      "prefab_name": "Bush", 
+      "end_time": "01/01/0001 00:00:00", 
+      "position_x": 1.322222, 
+      "position_y": -0.7388889, 
+      "position_z": 0, 
+      "is_flipped": false, 
+      "animal_slots": [ 
+        { 
+          "animal_id": -1, 
+          "end_time": "01/01/0001 00:00:00"
+          }, 
+        { 
+          "animal_id": -1, 
+          "end_time": "01/01/0001 00:00:00"
+          }, 
+        { 
+          "animal_id": -1, 
+          "end_time": "01/01/0001 00:00:00"
           }
         ]
       }

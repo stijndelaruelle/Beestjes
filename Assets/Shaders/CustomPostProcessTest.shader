@@ -1,4 +1,6 @@
-﻿Shader "Beestjes/SampleImageEffect" {
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Beestjes/SampleImageEffect" {
     Properties {
         _MainTex ("Screen Texture", 2D) = "white" {}
     }
@@ -27,7 +29,7 @@
             //        v.texcoord.y = 1-v.texcoord.y;
             //#endif
            
-            o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+            o.vertex = UnityObjectToClipPos(v.vertex);
             o.uv = v.texcoord;
            
             return o;

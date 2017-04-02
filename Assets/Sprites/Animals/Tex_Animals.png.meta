@@ -1,0 +1,408 @@
+fileFormatVersion: 2
+guid: 2b842d6922ea285438011f8af4cf2017
+timeCreated: 1491076714
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: Fred
+    21300002: animals_1
+    21300004: animals_2
+    21300006: animals_3
+    21300008: animals_4
+    21300010: animals_5
+    21300012: animals_6
+    21300014: animals_7
+    21300016: animals_8
+    21300018: animals_9
+    21300020: animals_10
+    21300022: animals_11
+    21300024: animals_12
+    21300026: animals_13
+    21300028: animals_14
+    21300030: animals_15
+    21300032: animals_16
+    21300034: animals_17
+    21300036: animals_18
+    21300038: animals_19
+    21300040: animals_20
+    21300042: animals_21
+    21300044: animals_22
+    21300046: animals_23
+    21300048: animals_24
+    21300050: animals_25
+    21300052: animals_26
+    21300054: animals_27
+    21300056: animals_28
+    21300058: animals_29
+    21300060: animals_30
+    21300062: animals_31
+    21300064: animals_32
+    21300066: animals_33
+    21300068: animals_34
+    21300070: animals_35
+    21300072: animals_36
+    21300074: animals_37
+    21300076: animals_38
+    21300078: animals_39
+    21300080: animals_40
+    21300082: animals_41
+    21300084: animals_42
+    21300086: animals_43
+    21300088: animals_44
+    21300090: animals_45
+    21300092: animals_46
+    21300094: animals_47
+    21300096: animals_48
+    21300098: animals_49
+    21300100: animals_50
+    21300102: animals_51
+    21300104: animals_52
+    21300106: animals_53
+    21300108: animals_54
+    21300110: animals_55
+    21300112: animals_56
+    21300114: animals_57
+    21300116: animals_58
+    21300118: animals_59
+    21300120: animals_60
+    21300122: animals_61
+    21300124: animals_62
+    21300126: animals_63
+    21300128: animals_64
+    21300130: animals_65
+    21300132: animals_66
+    21300134: animals_67
+    21300136: animals_68
+    21300138: animals_69
+    21300140: animals_70
+    21300142: animals_71
+    21300144: animals_72
+    21300146: animals_73
+    21300148: animals_74
+    21300150: animals_75
+    21300152: animals_76
+    21300154: animals_77
+    21300156: animals_78
+    21300158: animals_79
+    21300160: animals_80
+    21300162: animals_81
+    21300164: animals_82
+    21300166: animals_83
+    21300168: animals_84
+    21300170: animals_85
+    21300172: animals_86
+    21300174: animals_87
+    21300176: animals_88
+    21300178: animals_89
+    21300180: animals_90
+    21300182: animals_91
+    21300184: animals_92
+    21300186: animals_93
+    21300188: animals_94
+    21300190: animals_95
+    21300192: animals_96
+    21300194: animals_97
+    21300196: animals_98
+    21300198: animals_99
+    21300200: animals_100
+    21300202: animals_101
+    21300204: animals_102
+    21300206: animals_103
+    21300208: animals_104
+    21300210: animals_105
+    21300212: animals_106
+    21300214: animals_107
+    21300216: animals_108
+    21300218: animals_109
+    21300220: animals_110
+    21300222: animals_111
+    21300224: animals_112
+    21300226: animals_113
+    21300228: animals_114
+    21300230: animals_115
+    21300232: animals_116
+    21300234: animals_117
+    21300236: animals_118
+    21300238: animals_119
+    21300240: animals_120
+    21300242: animals_121
+    21300244: animals_122
+    21300246: animals_123
+    21300248: animals_124
+    21300250: animals_125
+    21300252: animals_126
+    21300254: animals_127
+    21300256: animals_128
+    21300258: animals_129
+    21300260: animals_130
+    21300262: animals_131
+    21300264: animals_132
+    21300266: animals_133
+    21300268: animals_134
+    21300270: animals_135
+    21300272: animals_136
+    21300274: animals_137
+    21300276: animals_138
+    21300278: animals_139
+    21300280: animals_140
+    21300282: animals_141
+    21300284: animals_142
+    21300286: animals_143
+    21300288: animals_144
+    21300290: animals_145
+    21300292: animals_146
+    21300294: animals_147
+    21300296: animals_148
+    21300298: animals_149
+    21300300: animals_150
+    21300302: animals_151
+    21300304: animals_152
+    21300306: animals_153
+    21300308: animals_154
+    21300310: animals_155
+    21300312: animals_156
+    21300314: animals_157
+    21300316: animals_158
+    21300318: animals_159
+    21300320: animals_160
+    21300322: animals_161
+    21300324: animals_162
+    21300326: animals_163
+    21300328: animals_164
+    21300330: animals_165
+    21300332: animals_166
+    21300334: animals_167
+    21300336: animals_168
+    21300338: animals_169
+    21300340: animals_170
+    21300342: animals_171
+    21300344: animals_172
+    21300346: animals_173
+    21300348: animals_174
+    21300350: animals_175
+    21300352: animals_176
+    21300354: animals_177
+    21300356: animals_178
+    21300358: animals_179
+    21300360: animals_180
+    21300362: animals_181
+    21300364: animals_182
+    21300366: animals_183
+    21300368: animals_184
+    21300370: animals_185
+    21300372: animals_186
+    21300374: animals_187
+    21300376: animals_188
+    21300378: animals_189
+    21300380: animals_190
+    21300382: Vos
+    21300384: Vogel
+    21300386: Hert
+    21300388: Eekhoorn
+    21300390: Bever
+    21300392: Uil
+    21300394: Beer
+    21300396: Konijn
+  serializedVersion: 4
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: -1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 750
+  alphaUsage: 1
+  alphaIsTransparency: 0
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  platformSettings:
+  - buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: Standalone
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: Android
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  - buildTarget: WebGL
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Fred
+      rect:
+        serializedVersion: 2
+        x: 244
+        y: 2718
+        width: 760
+        height: 435
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Vos
+      rect:
+        serializedVersion: 2
+        x: 1487
+        y: 2401
+        width: 546
+        height: 778
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Vogel
+      rect:
+        serializedVersion: 2
+        x: 2532
+        y: 2706
+        width: 436
+        height: 437
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Hert
+      rect:
+        serializedVersion: 2
+        x: 369
+        y: 1368
+        width: 1010
+        height: 1199
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Eekhoorn
+      rect:
+        serializedVersion: 2
+        x: 2608
+        y: 2054
+        width: 387
+        height: 369
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Bever
+      rect:
+        serializedVersion: 2
+        x: 2034
+        y: 1501
+        width: 1080
+        height: 434
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Uil
+      rect:
+        serializedVersion: 2
+        x: 271
+        y: 638
+        width: 583
+        height: 567
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Beer
+      rect:
+        serializedVersion: 2
+        x: 1195
+        y: 367
+        width: 1358
+        height: 1052
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Konijn
+      rect:
+        serializedVersion: 2
+        x: 2721
+        y: 327
+        width: 332
+        height: 329
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      tessellationDetail: 0
+    outline: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

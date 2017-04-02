@@ -3,10 +3,12 @@
 [RequireComponent (typeof(RectTransform))]
 public class PictureFrame : MonoBehaviour
 {
+    public delegate void BoolDelegate(bool value);
+
     private RectTransform m_RectTransform;
 
     [SerializeField]
-    private Camera m_Camera;
+    private Camera m_PictureCamera;
 
     [SerializeField]
     private Canvas m_Canvas;
@@ -15,13 +17,31 @@ public class PictureFrame : MonoBehaviour
         get { return m_Canvas; }
     }
 
-    [MinMaxRange(1, 750)]
+    [MinMaxRange(1, 1000)]
     [SerializeField]
-    private MinMaxRange m_SizeRange;
+    private MinMaxRange m_SizeRangeWidth;
+
+    [MinMaxRange(1, 1000)]
+    [SerializeField]
+    private MinMaxRange m_SizeRangeHeight;
+
+    public event BoolDelegate VisibilityChangedEvent;
 
     private void Awake()
     {
         m_RectTransform = GetComponent<RectTransform>();
+    }
+
+    private void OnEnable()
+    {
+        if (VisibilityChangedEvent != null)
+            VisibilityChangedEvent(true);
+    }
+
+    private void OnDisable()
+    {
+        if (VisibilityChangedEvent != null)
+            VisibilityChangedEvent(false);
     }
 
     //Mutators
@@ -44,13 +64,10 @@ public class PictureFrame : MonoBehaviour
         currentSize.y += size.y;
 
         //Clamp values
-        float scaledMin = m_SizeRange.Min * sf;
-        float scaledMax = m_SizeRange.Max * sf;
-
-        currentSize.x = Mathf.Clamp(currentSize.x, scaledMin, scaledMax);
+        currentSize.x = Mathf.Clamp(currentSize.x, m_SizeRangeWidth.Min * sf, m_SizeRangeWidth.Max * sf);
         usedValues.x = (currentSize.x - (m_RectTransform.sizeDelta.x * sf));
 
-        currentSize.y = Mathf.Clamp(currentSize.y, scaledMin, scaledMax);
+        currentSize.y = Mathf.Clamp(currentSize.y, m_SizeRangeHeight.Min * sf, m_SizeRangeHeight.Max * sf);
         usedValues.y = (currentSize.y - (m_RectTransform.sizeDelta.y * sf));
 
         m_RectTransform.sizeDelta = currentSize / sf;

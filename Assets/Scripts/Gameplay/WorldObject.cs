@@ -22,7 +22,7 @@ public class WorldObject : MonoBehaviour
 
     public void Tick(DateTime dateTime, PartOfDay partOfDay, float percentageOfPODPassed)
     {
-        if (m_AnimalSlots != null)
+        if (m_AnimalSlots == null)
             return;
 
         //Check if we should be destroyed
@@ -37,6 +37,17 @@ public class WorldObject : MonoBehaviour
         {
             animalSlot.Tick(dateTime, partOfDay, percentageOfPODPassed);
         }
+    }
+
+    public bool HasAnimal()
+    {
+        foreach (AnimalSlot animalSlot in m_AnimalSlots)
+        {
+            if (animalSlot.HasAnimal())
+                return true;
+        }
+
+        return false;
     }
 
     public void Serialize(JSONClass worldObjectNode)

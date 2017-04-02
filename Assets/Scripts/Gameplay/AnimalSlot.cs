@@ -59,6 +59,11 @@ public class AnimalSlot : MonoBehaviour
         m_EndTime = dateTime.AddMinutes(stayTimes[randID]);
     }
 
+    public void ForceSpawnRandomAnimal()
+    {
+
+    }
+
     private void SetCurrentAnimal(AnimalDefinition animal)
     {
         m_CurrentAnimal = animal;
@@ -69,6 +74,10 @@ public class AnimalSlot : MonoBehaviour
             m_SpriteRenderer.sprite = m_CurrentAnimal.Sprite;
     }
 
+    public bool HasAnimal()
+    {
+        return (m_CurrentAnimal != null);
+    }
 
     public void Serialize(JSONClass animalSlotNode)
     {

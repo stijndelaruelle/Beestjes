@@ -277,7 +277,7 @@ internal sealed class SuntimeCalculator
         if (date < currentDawnStart)
         {
             double timeUsed = (date - prevDuskEnd).TotalMilliseconds;
-            double totalTime = (prevDuskEnd - currentDawnStart).TotalMilliseconds;
+            double totalTime = (currentDawnStart - prevDuskEnd).TotalMilliseconds;
 
             percentage = (float)(timeUsed / totalTime);
 

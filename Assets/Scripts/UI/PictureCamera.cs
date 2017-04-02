@@ -83,21 +83,21 @@ public class PictureCamera : MonoBehaviour
         Texture2D picture = new Texture2D(width, height, TextureFormat.RGB24, false);
         picture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
 
-        #if UNITY_EDITOR
-            //Flip the picture on the X axis (Not needed on android)
-            Color[] origColours = picture.GetPixels();
-            Color[] flippedColours = new Color[origColours.Length];
+        //#if UNITY_EDITOR
+        //    //Flip the picture on the X axis (Not needed on android)
+        //    Color[] origColours = picture.GetPixels();
+        //    Color[] flippedColours = new Color[origColours.Length];
 
-            for (int x = 0; x < width; ++x)
-            {
-                for (int y = 0; y < height; ++y)
-                {
-                    flippedColours[x + (y * width)] = origColours[x + ((height - y - 1) * width)];
-                }
-            }
+        //    for (int x = 0; x < width; ++x)
+        //    {
+        //        for (int y = 0; y < height; ++y)
+        //        {
+        //            flippedColours[x + (y * width)] = origColours[x + ((height - y - 1) * width)];
+        //        }
+        //    }
 
-            picture.SetPixels(flippedColours);
-        #endif
+        //    picture.SetPixels(flippedColours);
+        //#endif
 
         picture.Apply();
 
@@ -132,7 +132,7 @@ public class PictureCamera : MonoBehaviour
             Debug.Log("Chosen folder: " + folderPath);
         #endif
 
-        string path = string.Format("{0}/picture_{1}.png", folderPath, System.DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss"));
+        string path = string.Format("{0}/picture_{1}.png", folderPath, GameClock.Instance.GetDateTime().ToString("dd-MM-yyyy_HH-mm-ss"));
 
         File.WriteAllBytes(path, bytes);
 
