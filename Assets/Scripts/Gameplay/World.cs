@@ -130,11 +130,13 @@ public class World : MonoBehaviour
         float percentageOfPODPassed = 0.0f;
         PartOfDay partOfDay = SuntimeCalculator.GetPartOfDay(52.079208, 5.140324, dateTime, ref percentageOfPODPassed);
 
-        foreach (WorldObject worldObject in m_WorldObjects)
+        //Loop backwards so removing is not an issue
+        //foreach (WorldObject worldObject in m_WorldObjects)
+        for (int i = m_WorldObjects.Count - 1; i >= 0; --i)
         {
-            worldObject.Tick(dateTime, partOfDay, percentageOfPODPassed);
+            m_WorldObjects[i].Tick(dateTime, partOfDay, percentageOfPODPassed);
         }
-
+        
         m_LastTickTime = dateTime;
     }
 
@@ -164,8 +166,22 @@ public class World : MonoBehaviour
         return worldObject;
     }
 
-    //Events
-    private void OnWorldObjectDestroyed(WorldObject worldObject)
+    public WorldObject SpawnWorldObject(WorldObject worldObjectPrefab, Vector3 position)
+    {
+        GameObject go = GameObject.Instantiate(worldObjectPrefab.gameObject, position, Quaternion.identity) as GameObject;
+        WorldObject worldObject = go.GetComponent<WorldObject>();
+
+        if (worldObject == null)
+            throw new System.Exception("Couldn't spawn world object: " + worldObjectPrefab.name);
+
+        //Add him to our list
+        worldObject.DestroyEvent += OnWorldObjectDestroyed;
+        m_WorldObjects.Add(worldObject);
+
+        return worldObject;
+    }
+
+    private void RemoveWorldObject(WorldObject worldObject)
     {
         if (m_WorldObjects == null)
             return;
@@ -174,6 +190,19 @@ public class World : MonoBehaviour
         Destroy(worldObject.gameObject);
 
         m_WorldObjects.Remove(worldObject);
+    }
+
+    //Events
+    private void OnWorldObjectDestroyed(WorldObject worldObject, WorldObject newWorldObjectPrefab)
+    {
+        Vector3 position = worldObject.transform.position;
+        RemoveWorldObject(worldObject);
+
+        if (newWorldObjectPrefab != null)
+        {
+            WorldObject newWorldObject = SpawnWorldObject(newWorldObjectPrefab, position);
+            newWorldObject.Initialize(worldObject.EndTime); //Spawn at the time the old object is removed
+        }
     }
 
     //Serialization
@@ -280,7 +309,7 @@ public class World : MonoBehaviour
 
                 //Spawn the prefab
                 WorldObject worldObject = SpawnWorldObject(prefabName, Vector3.zero);
-                worldObject.Deserialize(worldObjectNode);
+                worldObject.Deserialize(worldObjectNode); //Not need to initiaze, deserialization does that for us.
             }
         }
     }

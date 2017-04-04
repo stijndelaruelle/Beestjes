@@ -8,7 +8,10 @@ using UnityEngine;
 //Trees, bushes, benches, etc... anything that a user can place
 public class WorldObject : MonoBehaviour
 {
-    public delegate void WorldObjectDelegate(WorldObject worldObject);
+    public delegate void WorldObjectDelegate(WorldObject worldObject, WorldObject newWorldObject);
+
+    [SerializeField]
+    private WorldObject m_Evolution;
 
     [SerializeField]
     private List<AnimalSlot> m_AnimalSlots;
@@ -17,11 +20,32 @@ public class WorldObject : MonoBehaviour
     [SerializeField]
     private int m_LifeTime;
     private DateTime m_EndTime; //Time when this object grows or decays
+    public DateTime EndTime
+    {
+        get { return m_EndTime; }
+    }
+
+    private bool m_IsDestroyed = false;
 
     public event WorldObjectDelegate DestroyEvent;
 
+    private void Awake()
+    {
+        m_IsDestroyed = false;
+    }
+
+    public void Initialize(DateTime dateTime)
+    {
+        m_EndTime = dateTime.AddMinutes(m_LifeTime);
+    }
+
     public void Tick(DateTime dateTime, PartOfDay partOfDay, float percentageOfPODPassed)
     {
+        UpdateWorldObjectPrecense();
+
+        if (m_IsDestroyed)
+            return;
+
         if (m_AnimalSlots == null)
             return;
 
@@ -48,6 +72,23 @@ public class WorldObject : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void UpdateWorldObjectPrecense()
+    {
+        if (m_IsDestroyed)
+            return;
+
+        DateTime dateTime = GameClock.Instance.GetDateTime();
+
+        //If we ran out of time
+        if (dateTime >= m_EndTime)
+        {
+            m_IsDestroyed = true;
+
+            if (DestroyEvent != null)
+                DestroyEvent(this, m_Evolution);
+        }
     }
 
     public void Serialize(JSONClass worldObjectNode)
@@ -125,5 +166,7 @@ public class WorldObject : MonoBehaviour
                 }
             }
         }
+
+        UpdateWorldObjectPrecense();
     }
 }

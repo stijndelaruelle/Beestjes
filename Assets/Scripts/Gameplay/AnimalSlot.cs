@@ -19,15 +19,20 @@ public class AnimalSlot : MonoBehaviour
     private void Awake()
     {
         m_SpriteRenderer = GetComponent<SpriteRenderer>();
-        m_SpriteRenderer.sprite = null;
+        Reset();
+    }
 
-        m_CurrentAnimal = null;
+    private void Reset()
+    {
+        SetCurrentAnimal(null);
+        m_EndTime = DateTime.MinValue;
     }
 
     public void Tick(DateTime dateTime, PartOfDay partOfDay, float percentageOfPODPassed)
     {
         //If we are still occupied, nothing happens
-        if (dateTime < m_EndTime)
+        UpdateAnimalPrecense();
+        if (HasAnimal())
             return;
 
         //2 lists that run in sync
@@ -37,7 +42,8 @@ public class AnimalSlot : MonoBehaviour
         //Collect all the animals that are able to spawn
         foreach (AnimalDefinition animal in m_AnimalDefinitions)
         {
-            float stayTime = animal.CanSpawn(partOfDay, percentageOfPODPassed);
+            float stayTime = 0.0f;
+            animal.CanSpawn(partOfDay, percentageOfPODPassed, true, out stayTime);
             if (stayTime > 0.0f)
             {
                 availableAnimals.Add(animal);
@@ -59,9 +65,31 @@ public class AnimalSlot : MonoBehaviour
         m_EndTime = dateTime.AddMinutes(stayTimes[randID]);
     }
 
-    public void ForceSpawnRandomAnimal()
+    private void UpdateAnimalPrecense()
     {
+        if (m_CurrentAnimal == null)
+            return;
 
+        DateTime dateTime = GameClock.Instance.GetDateTime();
+
+        //If the animal ran away
+        if (dateTime >= m_EndTime)
+        {
+            Reset();
+            return;
+        }
+
+        //If the animal doesn't reveal itself at this time
+        float percentageOfPODPassed = 0.0f;
+        PartOfDay partOfDay = SuntimeCalculator.GetPartOfDay(52.079208, 5.140324, dateTime, ref percentageOfPODPassed);
+
+        bool canSpawn = m_CurrentAnimal.CanSpawn(partOfDay, percentageOfPODPassed, false);
+
+        if (canSpawn == false)
+        {
+            Reset();
+            return;
+        }
     }
 
     private void SetCurrentAnimal(AnimalDefinition animal)
@@ -73,6 +101,7 @@ public class AnimalSlot : MonoBehaviour
         else
             m_SpriteRenderer.sprite = m_CurrentAnimal.Sprite;
     }
+
 
     public bool HasAnimal()
     {
@@ -94,8 +123,7 @@ public class AnimalSlot : MonoBehaviour
         //No animal is present
         if (currentAnimalID == -1)
         {
-            SetCurrentAnimal(null);
-            m_EndTime = DateTime.MinValue;
+            Reset();
             return;
         }
 
@@ -119,5 +147,7 @@ public class AnimalSlot : MonoBehaviour
                 throw new System.Exception("A save game \"animal slot\" has an invalid \"end_time\" node! Expected DateTime. Source: " + placeTimeNode.ToString() + " Exception: " + e.Message);
             }
         }
+
+        UpdateAnimalPrecense();
     }
 }

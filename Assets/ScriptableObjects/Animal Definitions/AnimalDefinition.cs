@@ -67,8 +67,15 @@ public class AnimalDefinition : ScriptableObject
     private List<AppearanceTime> m_AppearanceTimes;
 
     //Returns how long the animal will spawn for
-    public float CanSpawn(PartOfDay partOfDay, float percentageOfDay)
+    public bool CanSpawn(PartOfDay partOfDay, float percentageOfDay, bool includeLuck)
     {
+        float stayTime = 0.0f;
+        return CanSpawn(partOfDay, percentageOfDay, includeLuck, out stayTime);
+    }
+
+    public bool CanSpawn(PartOfDay partOfDay, float percentageOfDay, bool includeLuck, out float stayTime)
+    {
+        stayTime = 0.0f;
         percentageOfDay *= 100.0f;
 
         foreach(AppearanceTime appearanceTime in m_AppearanceTimes)
@@ -78,21 +85,24 @@ public class AnimalDefinition : ScriptableObject
                 //Check if we are within range
                 bool isWithinRange = appearanceTime.PercantageOfPODRange.IsWithinRange(percentageOfDay);
                 if (isWithinRange == false)
-                    return 0.0f;
+                    return false;
 
                 //Check if we get trough the luck factor
-                float rand = UnityEngine.Random.Range(0.0f, 10000.0f);
-                rand /= 100.0f;
+                if (includeLuck)
+                {
+                    float rand = UnityEngine.Random.Range(0.0f, 10000.0f);
+                    rand /= 100.0f;
 
-                if (rand > appearanceTime.PercentageLuck)
-                    return 0.0f;
+                    if (rand > appearanceTime.PercentageLuck)
+                        return false;
+                }
 
                 //If we do, how long does he stay?
-                float stayTime = appearanceTime.StayTime.GetRandomValue();
-                return stayTime;
+                stayTime = appearanceTime.StayTime.GetRandomValue();
+                return true;
             }
         }
 
-        return 0.0f;
+        return false;
     }
 }

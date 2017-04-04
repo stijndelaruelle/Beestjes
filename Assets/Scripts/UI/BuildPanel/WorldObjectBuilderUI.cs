@@ -17,7 +17,9 @@ public class WorldObjectBuilderUI : MonoBehaviour, IPointerDownHandler, IDragHan
         Vector3 worldPosition = Camera.main.ScreenToWorldPoint(eventData.pressPosition);
         worldPosition.z = 0.0f;
 
-        m_World.SpawnWorldObject(m_SelectedPrefab, worldPosition);
+        WorldObject newWorldObject = m_World.SpawnWorldObject(m_SelectedPrefab, worldPosition);
+        newWorldObject.Initialize(GameClock.Instance.GetDateTime());
+
         m_World.Serialize();
 
         m_SelectedPrefab = "";
