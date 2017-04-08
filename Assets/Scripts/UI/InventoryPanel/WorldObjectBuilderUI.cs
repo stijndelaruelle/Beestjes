@@ -7,31 +7,35 @@ public class WorldObjectBuilderUI : MonoBehaviour, IPointerDownHandler, IDragHan
 {
     [SerializeField]
     private World m_World;
-    private string m_SelectedPrefab = "";
+    private InventoryItem m_SelectedItem;
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (m_SelectedPrefab == "")
+        if (m_SelectedItem == null)
+            return;
+
+        if (m_SelectedItem.CanUse() == false)
             return;
 
         Vector3 worldPosition = Camera.main.ScreenToWorldPoint(eventData.pressPosition);
         worldPosition.z = 0.0f;
 
-        WorldObject newWorldObject = m_World.SpawnWorldObject(m_SelectedPrefab, worldPosition);
+        WorldObject newWorldObject = m_World.SpawnWorldObject(m_SelectedItem.WorldObjectPrefab, worldPosition);
         newWorldObject.Initialize(GameClock.Instance.GetDateTime());
 
-        m_World.Serialize();
+        m_SelectedItem.Use();
+        m_SelectedItem = null;
 
-        m_SelectedPrefab = "";
+        SaveGameManager.Instance.Serialize();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        Debug.Log("DRAG");
+        //Debug.Log("DRAG");
     }
 
-    public void SetSelectedPrefab(string prefabName)
+    public void SelectItem(InventoryItem inventoryItem)
     {
-        m_SelectedPrefab = prefabName;
+        m_SelectedItem = inventoryItem;
     }
 }

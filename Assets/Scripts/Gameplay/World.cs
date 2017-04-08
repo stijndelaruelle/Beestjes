@@ -18,12 +18,6 @@ public class World : MonoBehaviour
     [SerializeField]
     private int m_MaxTicks;
 
-    [SerializeField]
-    private string m_RootPath;
-
-    [SerializeField]
-    private string m_SaveFileName;
-
     private DateTime m_LastTickTime = DateTime.MinValue;
     private List<WorldObject> m_WorldObjects;
 
@@ -35,44 +29,7 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        DetermineRootPath();
-        Deserialize();
         TickLoop();
-    }
-
-    private void Update()
-    {
-        //Debug commands
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            Serialize();
-        }
-
-        if (Input.GetKeyDown(KeyCode.F2))
-        {
-            Deserialize();
-        }
-    }
-
-    private void DetermineRootPath()
-    {
-        //No more Application.persistentDataPath as it will never return the SD card.
-
-        #if UNITY_ANDROID && !UNITY_EDITOR  
-            int numberOfStorageDevices = DataPathPlugin.GetExternalDataPathCount();
-
-            //Backwards as we prefer an external SD card!
-            for (int i = (numberOfStorageDevices - 1); i >= 0; --i)
-            {
-                if (DataPathPlugin.CanReadExternalDataPath(i) && DataPathPlugin.CanWriteExternalDataPath(i))
-                {
-                    m_RootPath = DataPathPlugin.GetExternalDataPath(i);
-                    break;
-                }
-            }
-        #endif
-
-        Debug.Log("Registered root path: " + m_RootPath);
     }
 
     private void TickLoop()
@@ -83,7 +40,7 @@ public class World : MonoBehaviour
         if (m_LastTickTime == DateTime.MinValue)
         {
             Tick(now);
-            Serialize();
+            SaveGameManager.Instance.Serialize();
             return;
         }
 
@@ -122,7 +79,7 @@ public class World : MonoBehaviour
         }
 
         m_LastTickTime = GameClock.Instance.GetDateTime();
-        Serialize();
+        SaveGameManager.Instance.Serialize();
     }
 
     private void Tick(DateTime dateTime)
@@ -153,17 +110,8 @@ public class World : MonoBehaviour
 
     public WorldObject SpawnWorldObject(string prefabName, Vector3 position)
     {
-        GameObject go = GameObject.Instantiate(Resources.Load(prefabName), position, Quaternion.identity) as GameObject;
-        WorldObject worldObject = go.GetComponent<WorldObject>();
-
-        if (worldObject == null)
-            throw new System.Exception("Couldn't spawn world object: " + prefabName);
-
-        //Add him to our list
-        worldObject.DestroyEvent += OnWorldObjectDestroyed;
-        m_WorldObjects.Add(worldObject);
-
-        return worldObject;
+        WorldObject worldObjectPrefab = Resources.Load<WorldObject>(prefabName);
+        return SpawnWorldObject(worldObjectPrefab, position);
     }
 
     public WorldObject SpawnWorldObject(WorldObject worldObjectPrefab, Vector3 position)
@@ -205,30 +153,7 @@ public class World : MonoBehaviour
         }
     }
 
-    //Serialization
-    public bool Serialize()
-    {
-        //Create the root object
-        JSONClass rootObject = new JSONClass();
-
-        SerializeJSON(rootObject);
-
-        //Write the JSON data (.ToString in release as it saves a lot of data compard to ToJSON)
-        string jsonStr = "";
-        #if UNITY_ANDROID && !UNITY_EDITOR
-            jsonStr = rootObject.ToString();
-        #else
-                jsonStr = rootObject.ToJSON(0);
-        #endif
-
-        string filePath = m_RootPath + "/" + m_SaveFileName;
-        File.WriteAllText(filePath, jsonStr);
-
-        Debug.Log("Save game succesfully saved!");
-        return true;
-    }
-
-    private void SerializeJSON(JSONNode rootNode)
+    public void Serialize(JSONNode rootNode)
     {
         rootNode.Add("last_tick_time", new JSONData(m_LastTickTime.ToString("dd/MM/yyyy HH:mm:ss")));
 
@@ -244,42 +169,7 @@ public class World : MonoBehaviour
         rootNode.Add("world_objects", worldObjectArrayNode);
     }
 
-    public bool Deserialize()
-    {
-        //Read the file
-        string fileText = "";
-        try
-        {
-            string filePath = m_RootPath + "/" + m_SaveFileName;
-            fileText = File.ReadAllText(filePath);
-        }
-        catch (Exception e)
-        {
-            //The file was not found, but that shouldn't crash the game!
-            Debug.LogWarning("Error deserializing savegame: " + e.Message);
-        }
-
-        //If the file is empty, it's probably a new account
-        if (fileText == "") { return true; }
-
-        try
-        {
-            JSONNode rootNode = JSON.Parse(fileText);
-            DeserializeJSON(rootNode);
-
-            Debug.Log("Savegame succesfully loaded!");
-        }
-
-        catch (Exception e)
-        {
-            Debug.LogError("Savegame encountered the following parsing error: " + e.Message);
-            return false;
-        }
-
-        return true;
-    }
-
-    private void DeserializeJSON(JSONNode rootNode)
+    public void Deserialize(JSONNode rootNode)
     {
         ClearWorld();
 
