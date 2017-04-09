@@ -238,9 +238,13 @@ public class SaveGameManager : Singleton<SaveGameManager>
         return true;
     }
 
-    private Texture2D DeserializePicture(string path)
+    public Texture2D DeserializePicture(string path)
     {
-        return null;
+        Texture2D texture = new Texture2D(1, 1);
+        byte[] byteArr = File.ReadAllBytes(path);
+        texture.LoadImage(byteArr); //Will resize the texture's dimensions.
+
+        return texture;
     }
 
     //Utility

@@ -3,16 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent (typeof(RectTransform))]
-[RequireComponent (typeof(RawImage))]
-public class LastPictureDisplay : MonoBehaviour
+[RequireComponent(typeof(RectTransform))]
+[RequireComponent(typeof(RawImage))]
+public class PictureDisplay : MonoBehaviour
 {
-    private RectTransform m_RectTransform;
-    private RawImage m_RawImage;
-
-    [SerializeField]
-    private PictureCamera m_PictureCamera;
-    private float m_InitialSize;
+    protected RectTransform m_RectTransform;
+    protected RawImage m_RawImage;
+    protected float m_InitialSize;
 
     private void Awake()
     {
@@ -21,13 +18,16 @@ public class LastPictureDisplay : MonoBehaviour
         m_InitialSize = m_RectTransform.sizeDelta.x;
     }
 
-    private void OnEnable()
+    public void Initialize(Texture2D texture)
     {
-        if (m_PictureCamera.LastPicture == null)
+        if (texture == null)
+        {
+            m_RawImage.texture = null;
             return;
+        }
 
         //Set the picture
-        m_RawImage.texture = m_PictureCamera.LastPicture.Texture;
+        m_RawImage.texture = texture;
 
         //Set the frame to the correct scale
         float aspectRatio = (float)m_RawImage.texture.width / (float)m_RawImage.texture.height;

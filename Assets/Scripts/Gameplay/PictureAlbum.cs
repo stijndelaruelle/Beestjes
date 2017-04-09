@@ -48,6 +48,14 @@ public class Picture
         m_Tags = tags;
     }
 
+    public void LoadTexture()
+    {
+        if (m_Texture != null)
+            return;
+
+        m_Texture = SaveGameManager.Instance.DeserializePicture(m_TextureFilePath);
+    }
+
     public void Serialize(JSONClass rootNode)
     {
         rootNode.Add("texture_path", new JSONData(m_TextureFilePath));
@@ -78,14 +86,16 @@ public class Picture
                 m_Tags.Add(tag);
             }
         }
-
-        //Load picture from disk
     }
 }
 
 public class PictureAlbum : MonoBehaviour
 {
     private List<Picture> m_Pictures;
+    public List<Picture> Pictures
+    {
+        get { return m_Pictures; }
+    }
 
     private void Awake()
     {

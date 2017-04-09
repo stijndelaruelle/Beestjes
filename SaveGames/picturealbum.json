@@ -1,0 +1,16 @@
+{ 
+  "picture_album": [ 
+    { 
+      "texture_path": "E:\\Unity Projects\\Beestjes\\Beestjes\\SaveGames\\Pictures\\picture_09-04-2017_21-56-10.png", 
+      "score": 0, 
+      "tags": [ 
+        ]
+      }, 
+    { 
+      "texture_path": "E:\\Unity Projects\\Beestjes\\Beestjes\\SaveGames\\Pictures\\picture_09-04-2017_21-56-31.png", 
+      "score": 0, 
+      "tags": [ 
+        ]
+      }
+    ]
+  }

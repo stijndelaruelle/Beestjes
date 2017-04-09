@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PictureShareButton : MonoBehaviour
+public class LastPictureSaveButton : MonoBehaviour
 {
     [SerializeField]
     private PictureCamera m_PictureCamera;
 
     [SerializeField]
-    private PictureTakenPanel m_PictureTakenPanel;
+    private LastPictureTakenPanel m_PictureTakenPanel;
 
     private void OnDestroy()
     {
@@ -16,7 +16,7 @@ public class PictureShareButton : MonoBehaviour
             m_PictureCamera.PictureSavedEvent -= OnPictureSaved;
     }
 
-    public void Share()
+    public void Save()
     {
         //Save
         m_PictureCamera.PictureSavedEvent += OnPictureSaved;
@@ -25,9 +25,6 @@ public class PictureShareButton : MonoBehaviour
 
     private void OnPictureSaved(Picture picture)
     {
-        //Share
-        SharePlugin.ShareImage("Share picture...", picture.TextureFilePath, "png");
-
         //Hide window
         m_PictureTakenPanel.Hide();
 
