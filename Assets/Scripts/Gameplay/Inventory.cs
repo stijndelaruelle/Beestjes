@@ -171,6 +171,13 @@ public class Inventory : MonoBehaviour
             ItemRemovedEvent(inventoryItem);
     }
 
+    public void OnNewUser()
+    {
+        //TEMP
+        AddItem(m_ItemList.GetItemDefinition(0), 1);
+        AddItem(m_ItemList.GetItemDefinition(1), 1);
+    }
+
     public void Serialize(JSONNode rootNode)
     {
         JSONArray itemArrayNode = new JSONArray();

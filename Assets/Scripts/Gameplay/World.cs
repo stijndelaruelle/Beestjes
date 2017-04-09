@@ -164,6 +164,13 @@ public class World : MonoBehaviour
         }
     }
 
+    public void OnNewUser()
+    {
+        //TEMP
+        WorldObject newWorldObject = SpawnWorldObject("Bush_2_FullSize", new Vector3(0.0f, -1.0f, 0.0f));
+        newWorldObject.Initialize(GameClock.Instance.GetDateTime());
+    }
+
     //Serialization
     public void Serialize(JSONNode rootNode)
     {
@@ -215,5 +222,4 @@ public class World : MonoBehaviour
             }
         }
     }
-
 }

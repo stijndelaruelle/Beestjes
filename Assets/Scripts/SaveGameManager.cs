@@ -166,20 +166,20 @@ public class SaveGameManager : Singleton<SaveGameManager>
 
     public bool DeserializeWorld()
     {
-        return Deserialize(m_World.Deserialize, m_WorldFileName);
+        return Deserialize(m_World.Deserialize, m_World.OnNewUser, m_WorldFileName);
     }
 
     public bool DeserializeInventory()
     {
-        return Deserialize(m_Inventory.Deserialize, m_InventoryFileName);
+        return Deserialize(m_Inventory.Deserialize, m_Inventory.OnNewUser, m_InventoryFileName);
     }
 
     public bool DeserializePictureAlbum()
     {
-        return Deserialize(m_PictureAlbum.Deserialize, m_PictureAlbumFileName);
+        return Deserialize(m_PictureAlbum.Deserialize, null, m_PictureAlbumFileName);
     }
 
-    private bool Deserialize(JSONNodeDelegate deserializeFunction, string fileName)
+    private bool Deserialize(JSONNodeDelegate deserializeFunction, Action newUserFunction, string fileName)
     {
         //Read the file
         string fileText = "";
@@ -195,7 +195,13 @@ public class SaveGameManager : Singleton<SaveGameManager>
         }
 
         //If the file is empty, it's probably a new account
-        if (fileText == "") { return true; }
+        if (fileText == "")
+        {
+            if (newUserFunction != null)
+                newUserFunction();
+
+            return true;
+        }
 
         //Else parse it!
         try
@@ -286,7 +292,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
         while (fileExists == true || count >= 100) //Safety net
         {
             uniqueFileName = originalFileName;
-            if (count > 0) uniqueFileName += "(" + (count + 1) + ")";
+            if (count > 0) uniqueFileName += " (" + (count + 1) + ")";
             uniqueFileName += extention;
 
             fileExists = File.Exists(rootDirectory.FullName + Path.DirectorySeparatorChar + uniqueFileName);
