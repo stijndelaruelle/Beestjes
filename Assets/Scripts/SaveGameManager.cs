@@ -228,8 +228,10 @@ public class SaveGameManager : Singleton<SaveGameManager>
         byte[] bytes = picture.Texture.EncodeToPNG();
 
         string fileName = string.Format(m_PictureFileName, GameClock.Instance.GetDateTime().ToString("dd-MM-yyyy_HH-mm-ss"));
-        string path = pictureDirectory.FullName + Path.DirectorySeparatorChar + fileName;
+        fileName = FindUniqueFileName(pictureDirectory, fileName);
 
+        string path = pictureDirectory.FullName + Path.DirectorySeparatorChar + fileName;
+        
         File.WriteAllBytes(path, bytes);
 
         picture.TextureFilePath = path;
@@ -270,5 +272,27 @@ public class SaveGameManager : Singleton<SaveGameManager>
         }
 
         return ourDirectory;
+    }
+
+    private string FindUniqueFileName(DirectoryInfo rootDirectory, string originalFileName)
+    {
+        int dotIndex = originalFileName.LastIndexOf(".");
+        string extention = originalFileName.Substring(dotIndex);
+        originalFileName = originalFileName.Remove(dotIndex);
+
+        string uniqueFileName = "";
+        bool fileExists = true;
+        int count = 0;
+        while (fileExists == true || count >= 100) //Safety net
+        {
+            uniqueFileName = originalFileName;
+            if (count > 0) uniqueFileName += "(" + (count + 1) + ")";
+            uniqueFileName += extention;
+
+            fileExists = File.Exists(rootDirectory.FullName + Path.DirectorySeparatorChar + uniqueFileName);
+            ++count;
+        }
+
+        return uniqueFileName;
     }
 }
