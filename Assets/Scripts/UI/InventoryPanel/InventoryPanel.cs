@@ -32,7 +32,14 @@ public class InventoryPanel : MonoBehaviour
         DOTween.Init(false, true, LogBehaviour.ErrorsOnly);
         m_PictureFrame.VisibilityChangedEvent += OnPictureFrameVisibilityChanged;
 
-        Initialize();
+        m_Inventory.ItemAddedEvent += OnItemAdded;
+        m_Inventory.ItemUpdatedEvent += OnItemUpdated;
+        m_Inventory.ItemRemovedEvent += OnItemRemoved;
+
+        foreach (InventoryItem item in m_Inventory.Items)
+        {
+            AddButton(item);
+        }
     }
 
     private void OnDestroy()
@@ -47,17 +54,6 @@ public class InventoryPanel : MonoBehaviour
         }
     }
 
-    private void Initialize()
-    {
-        m_Inventory.ItemAddedEvent += OnItemAdded;
-        m_Inventory.ItemRemovedEvent += OnItemRemoved;
-
-        foreach (InventoryItem item in m_Inventory.Items)
-        {
-            AddButton(item);
-        }
-    }
-
     private void AddButton(InventoryItem item)
     {
         InventoryItemButton newButton = GameObject.Instantiate(m_InventoryItemButtonPrefab, m_RectTransform);
@@ -69,6 +65,17 @@ public class InventoryPanel : MonoBehaviour
     private void OnItemAdded(InventoryItem item)
     {
         AddButton(item);
+    }
+
+    private void OnItemUpdated(InventoryItem item)
+    {
+        for (int i = m_Buttons.Count - 1; i >= 0; --i)
+        {
+            if (m_Buttons[i].InventoryItem == item)
+            {
+                m_Buttons[i].UpdateVisuals();
+            }
+        }
     }
 
     private void OnItemRemoved(InventoryItem item)

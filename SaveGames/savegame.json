@@ -88,16 +88,8 @@
     ], 
   "inventory": [ 
     { 
-      "prefab_name": "Bush_1_Small", 
-      "amount": 1
-      },
-          { 
-      "prefab_name": "Tree_1_Small", 
-      "amount": 1
-      },
-      { 
-      "prefab_name": "Tree_1_Small", 
-      "amount": 1
+      "item_id": 1, 
+      "amount": 2
       }
     ]
   }

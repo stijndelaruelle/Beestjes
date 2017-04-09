@@ -7,16 +7,16 @@ public delegate void InventoryItemDelegate(InventoryItem inventoryItem);
 
 public class InventoryItem
 {
-    private WorldObject m_WorldObjectPrefab;
-    public WorldObject WorldObjectPrefab
-    {
-        get { return m_WorldObjectPrefab; }
-    }
+    private ItemListDefinition m_ItemListDefinition;
 
-    private Sprite m_Picture;
+    private ItemDefinition m_ItemDefinition;
     public Sprite Picture
     {
-        get { return m_Picture; }
+        get { return m_ItemDefinition.Sprite; }
+    }
+    public WorldObject WorldObjectPrefab
+    {
+        get { return m_ItemDefinition.WorldObjectPrefab; }
     }
 
     private int m_Amount;
@@ -25,17 +25,20 @@ public class InventoryItem
         get { return m_Amount; }
     }
 
+    public event InventoryItemDelegate UpdateEvent;
     public event InventoryItemDelegate DestroyEvent;
 
-    public InventoryItem()
+    public InventoryItem(ItemListDefinition itemListDefinition)
     {
-        m_WorldObjectPrefab = null;
+        m_ItemListDefinition = itemListDefinition;
+        m_ItemDefinition = null;
         m_Amount = 0;
     }
 
-    public InventoryItem(string worldObjectPrefab, int amount)
+    public InventoryItem(ItemListDefinition itemListDefinition, ItemDefinition itemDefinition, int amount)
     {
-        SetPrefab(worldObjectPrefab);
+        m_ItemListDefinition = itemListDefinition;
+        m_ItemDefinition = itemDefinition;
         m_Amount = amount;
     }
 
@@ -55,32 +58,35 @@ public class InventoryItem
                 if (DestroyEvent != null)
                     DestroyEvent(this);
             }
+            else
+            {
+                if (UpdateEvent != null)
+                    UpdateEvent(this);
+            }
         }
-    }
-
-    private void SetPrefab(string worldObjectPrefab)
-    {
-        m_WorldObjectPrefab = Resources.Load<WorldObject>(worldObjectPrefab);
-
-        SpriteRenderer spriteRenderer = m_WorldObjectPrefab.GetComponentInChildren<SpriteRenderer>();
-        m_Picture = spriteRenderer.sprite;
     }
 
     public void Serialize(JSONClass itemNode)
     {
-        itemNode.Add("prefab_name", new JSONData(m_WorldObjectPrefab.name));
+        int id = m_ItemListDefinition.GetID(m_ItemDefinition);
+        itemNode.Add("item_id", new JSONData(id));
         itemNode.Add("amount", new JSONData(m_Amount));
     }
 
     public void Deserialize(JSONClass itemNode)
     {
-        SetPrefab(itemNode["prefab_name"].Value);
+        int id = (itemNode["item_id"].AsInt);
         m_Amount = itemNode["amount"].AsInt;
+
+        m_ItemDefinition = m_ItemListDefinition.GetItemDefinition(id);
     }
 }
 
 public class Inventory : MonoBehaviour
 {
+    [SerializeField]
+    private ItemListDefinition m_ItemList;
+
     private List<InventoryItem> m_Items;
     public List<InventoryItem> Items
     {
@@ -88,6 +94,7 @@ public class Inventory : MonoBehaviour
     }
 
     public event InventoryItemDelegate ItemAddedEvent;
+    public event InventoryItemDelegate ItemUpdatedEvent;
     public event InventoryItemDelegate ItemRemovedEvent;
 
     private void Awake()
@@ -100,18 +107,18 @@ public class Inventory : MonoBehaviour
         //Debug commands
         if (Input.GetKeyDown(KeyCode.F11))
         {
-            AddItem("Bush_1_Small", 1);
+            AddItem(m_ItemList.GetItemDefinition(0), 1);
         }
 
         if (Input.GetKeyDown(KeyCode.F12))
         {
-            AddItem("Tree_1_Small", 1);
+            AddItem(m_ItemList.GetItemDefinition(1), 1);
         }
     }
 
-    private void AddItem(string name, int amount)
+    private void AddItem(ItemDefinition itemDefinition, int amount)
     {
-        InventoryItem newItem = new InventoryItem(name, amount);
+        InventoryItem newItem = new InventoryItem(m_ItemList, itemDefinition, amount);
         AddItem(newItem);
     }
 
@@ -121,6 +128,7 @@ public class Inventory : MonoBehaviour
             return;
 
         //TODO: Doesn't check for duplicates yet.
+        inventoryItem.UpdateEvent += OnInventoryItemUpdatedEvent;
         inventoryItem.DestroyEvent += OnInventoryItemDestroyed;
 
         m_Items.Add(inventoryItem);
@@ -129,7 +137,7 @@ public class Inventory : MonoBehaviour
         if (ItemAddedEvent != null)
             ItemAddedEvent(inventoryItem);
 
-        Debug.Log("Inventory: Added " + inventoryItem.Amount + " " + inventoryItem.WorldObjectPrefab.name);
+        Debug.Log("Inventory: Added " + inventoryItem.Amount + " " + inventoryItem);
     }
 
     public void UseItem(InventoryItem item)
@@ -142,11 +150,19 @@ public class Inventory : MonoBehaviour
     }
 
     //Events
+    private void OnInventoryItemUpdatedEvent(InventoryItem inventoryItem)
+    {
+        //Send trough
+        if (ItemUpdatedEvent != null)
+            ItemUpdatedEvent(inventoryItem);
+    }
+
     private void OnInventoryItemDestroyed(InventoryItem inventoryItem)
     {
         if (m_Items == null)
             return;
 
+        inventoryItem.UpdateEvent -= OnInventoryItemUpdatedEvent;
         inventoryItem.DestroyEvent -= OnInventoryItemDestroyed;
         m_Items.Remove(inventoryItem);
 
@@ -178,7 +194,7 @@ public class Inventory : MonoBehaviour
             {
                 JSONClass itemNode = itemArrayNode[i].AsObject;
 
-                InventoryItem inventoryItem = new InventoryItem();
+                InventoryItem inventoryItem = new InventoryItem(m_ItemList);
                 inventoryItem.Deserialize(itemNode);
 
                 AddItem(inventoryItem);
