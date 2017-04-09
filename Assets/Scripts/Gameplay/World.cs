@@ -40,7 +40,7 @@ public class World : MonoBehaviour
         if (m_LastTickTime == DateTime.MinValue)
         {
             Tick(now);
-            SaveGameManager.Instance.Serialize();
+            SaveGameManager.Instance.SerializeWorld();
             return;
         }
 
@@ -79,7 +79,7 @@ public class World : MonoBehaviour
         }
 
         m_LastTickTime = GameClock.Instance.GetDateTime();
-        SaveGameManager.Instance.Serialize();
+        SaveGameManager.Instance.SerializeWorld();
     }
 
     private void Tick(DateTime dateTime)
@@ -108,6 +108,17 @@ public class World : MonoBehaviour
         m_WorldObjects.Clear();
     }
 
+    public int CalculatePictureScore(List<string> tagList, Rect cameraRect)
+    {
+        int score = 0;
+        foreach (WorldObject worldObject in m_WorldObjects)
+        {
+            score += worldObject.CalculatePictureScore(tagList, cameraRect);
+        }
+
+        return score;
+    }
+
     public WorldObject SpawnWorldObject(string prefabName, Vector3 position)
     {
         WorldObject worldObjectPrefab = Resources.Load<WorldObject>(prefabName);
@@ -116,7 +127,7 @@ public class World : MonoBehaviour
 
     public WorldObject SpawnWorldObject(WorldObject worldObjectPrefab, Vector3 position)
     {
-        GameObject go = GameObject.Instantiate(worldObjectPrefab.gameObject, position, Quaternion.identity) as GameObject;
+        GameObject go = GameObject.Instantiate(worldObjectPrefab.gameObject, position, Quaternion.identity, transform) as GameObject;
         WorldObject worldObject = go.GetComponent<WorldObject>();
 
         if (worldObject == null)
@@ -153,6 +164,7 @@ public class World : MonoBehaviour
         }
     }
 
+    //Serialization
     public void Serialize(JSONNode rootNode)
     {
         rootNode.Add("last_tick_time", new JSONData(m_LastTickTime.ToString("dd/MM/yyyy HH:mm:ss")));

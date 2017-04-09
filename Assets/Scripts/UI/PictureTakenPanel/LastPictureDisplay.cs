@@ -27,7 +27,7 @@ public class LastPictureDisplay : MonoBehaviour
             return;
 
         //Set the picture
-        m_RawImage.texture = m_PictureCamera.LastPicture;
+        m_RawImage.texture = m_PictureCamera.LastPicture.Texture;
 
         //Set the frame to the correct scale
         float aspectRatio = (float)m_RawImage.texture.width / (float)m_RawImage.texture.height;

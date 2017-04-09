@@ -66,6 +66,22 @@ public class AnimalDefinition : ScriptableObject
     [SerializeField]
     private List<AppearanceTime> m_AppearanceTimes;
 
+    [Header("Score")]
+    [Space(5)]
+    [SerializeField]
+    private int m_Score;
+    public int Score
+    {
+        get { return m_Score; }
+    }
+
+    [SerializeField]
+    private int m_FirstScoreBonus;
+    public int FirstScoreBonus
+    {
+        get { return m_FirstScoreBonus; }
+    }
+
     //Returns how long the animal will spawn for
     public bool CanSpawn(PartOfDay partOfDay, float percentageOfDay, bool includeLuck)
     {

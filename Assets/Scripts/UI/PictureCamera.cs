@@ -1,20 +1,24 @@
-﻿using System.Collections;
-using System.IO;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
 public class PictureCamera : MonoBehaviour
 {
-    public delegate void PictureDelegate(Texture2D picture);
-    public delegate void PathDelegate(string path);
+    public delegate void PictureDelegate(Picture picture);
 
     private Camera m_Camera;
 
     [SerializeField]
     private PictureFrame m_PictureFrame;
 
-    private Texture2D m_LastPicture;
-    public Texture2D LastPicture
+    [SerializeField]
+    private World m_World;
+
+    [SerializeField]
+    private PictureAlbum m_PictureAlbum;
+
+    private Picture m_LastPicture;
+    public Picture LastPicture
     {
         get { return m_LastPicture; }
     }
@@ -23,7 +27,7 @@ public class PictureCamera : MonoBehaviour
     private bool m_PictureSaved;
 
     public event PictureDelegate PictureTakenEvent;
-    public event PathDelegate PictureSavedEvent;
+    public event PictureDelegate PictureSavedEvent;
 
     private void Awake()
     {
@@ -71,8 +75,8 @@ public class PictureCamera : MonoBehaviour
         RenderTexture.active = src;
 
         //Create a new texture & read all pixels from the rendertexture
-        Texture2D picture = new Texture2D(width, height, TextureFormat.RGB24, false);
-        picture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        Texture2D pictureTexture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        pictureTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
 
         //#if UNITY_EDITOR
         //    //Flip the picture on the X axis (Not needed on android)
@@ -90,16 +94,19 @@ public class PictureCamera : MonoBehaviour
         //    picture.SetPixels(flippedColours);
         //#endif
 
-        picture.Apply();
+        pictureTexture.Apply();
 
         RenderTexture.active = null;
 
-        m_LastPicture = picture;
+        List<string> tagList = new List<string>();
+        int score = m_World.CalculatePictureScore(tagList, m_Camera.rect);
+
+        m_LastPicture = new Picture(pictureTexture, score, tagList);
         m_TakePicture = false;
         m_PictureSaved = false;
 
         if (PictureTakenEvent != null)
-            PictureTakenEvent(picture);
+            PictureTakenEvent(m_LastPicture);
 
         Debug.Log("Picture taken!");
     }
@@ -113,12 +120,13 @@ public class PictureCamera : MonoBehaviour
         if (m_PictureSaved)
             return;
 
-        string path = SaveGameManager.Instance.SavePictureToDisk(m_LastPicture);
+        SaveGameManager.Instance.SerializePicture(m_LastPicture);
+        m_PictureAlbum.AddPicture(m_LastPicture);
 
         m_PictureSaved = true;
 
         if (PictureSavedEvent != null)
-            PictureSavedEvent(path);
+            PictureSavedEvent(m_LastPicture);
 
         Debug.Log("Picture saved!");
     }

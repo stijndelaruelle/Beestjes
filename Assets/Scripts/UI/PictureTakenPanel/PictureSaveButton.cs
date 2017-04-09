@@ -23,7 +23,7 @@ public class PictureSaveButton : MonoBehaviour
         m_PictureCamera.SavePictureToDisk();
     }
 
-    private void OnPictureSaved(string path)
+    private void OnPictureSaved(Picture picture)
     {
         //Hide window
         m_PictureTakenPanel.Hide();

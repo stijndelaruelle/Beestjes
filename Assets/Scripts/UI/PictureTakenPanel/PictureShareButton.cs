@@ -23,10 +23,10 @@ public class PictureShareButton : MonoBehaviour
         m_PictureCamera.SavePictureToDisk();
     }
 
-    private void OnPictureSaved(string path)
+    private void OnPictureSaved(Picture picture)
     {
         //Share
-        SharePlugin.ShareImage("Share picture...", path, "png");
+        SharePlugin.ShareImage("Share picture...", picture.TextureFilePath, "png");
 
         //Hide window
         m_PictureTakenPanel.Hide();

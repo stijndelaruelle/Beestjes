@@ -7,6 +7,9 @@ using UnityEngine;
 
 public class SaveGameManager : Singleton<SaveGameManager>
 {
+    public delegate void JSONClassDelegate(JSONClass jsonClass);
+    public delegate void JSONNodeDelegate(JSONNode jsonNode);
+
     [Header("Root Path")]
     [Space(5)]
     [SerializeField]
@@ -17,7 +20,13 @@ public class SaveGameManager : Singleton<SaveGameManager>
     [Space(5)]
 
     [SerializeField]
-    private string m_SaveFileName;
+    private string m_WorldFileName;
+
+    [SerializeField]
+    private string m_InventoryFileName;
+
+    [SerializeField]
+    private string m_PictureAlbumFileName;
 
     [Header("Pictures")]
     [Space(5)]
@@ -36,10 +45,13 @@ public class SaveGameManager : Singleton<SaveGameManager>
     [SerializeField]
     private Inventory m_Inventory;
 
+    [SerializeField]
+    private PictureAlbum m_PictureAlbum;
+
     private void Start()
     {
         DetermineRootPath();
-        Deserialize();
+        DeserializeAll();
     }
 
     private void Update()
@@ -47,12 +59,12 @@ public class SaveGameManager : Singleton<SaveGameManager>
         //Debug commands
         if (Input.GetKeyDown(KeyCode.F1))
         {
-            Serialize();
+            SerializeAll();
         }
 
         if (Input.GetKeyDown(KeyCode.F2))
         {
-            Deserialize();
+            DeserializeAll();
         }
     }
 
@@ -78,14 +90,46 @@ public class SaveGameManager : Singleton<SaveGameManager>
         Debug.Log("Registered root path: " + m_RootPath);
     }
 
+
     //Save Game Serialization
-    public bool Serialize()
+    public bool SerializeAll()
+    {
+        bool success = SerializeWorld();
+        if (!success)
+            return false;
+
+        success = SerializeInventory();
+        if (!success)
+            return false;
+
+        success = SerializePictureAlbum();
+        if (!success)
+            return false;
+
+        return success;
+    }
+
+    public bool SerializeWorld()
+    {
+        return Serialize(m_World.Serialize, m_WorldFileName);
+    }
+
+    public bool SerializeInventory()
+    {
+        return Serialize(m_Inventory.Serialize, m_InventoryFileName);
+    }
+
+    public bool SerializePictureAlbum()
+    {
+        return Serialize(m_PictureAlbum.Serialize, m_PictureAlbumFileName);
+    }
+
+    private bool Serialize(JSONClassDelegate serializeFunction, string fileName)
     {
         //Create the root object
         JSONClass rootObject = new JSONClass();
 
-        m_World.Serialize(rootObject);
-        m_Inventory.Serialize(rootObject);
+        serializeFunction(rootObject);
 
         //Write the JSON data (.ToString in release as it saves a lot of data compard to ToJSON)
         string jsonStr = "";
@@ -95,20 +139,53 @@ public class SaveGameManager : Singleton<SaveGameManager>
                 jsonStr = rootObject.ToJSON(0);
         #endif
 
-        string filePath = m_RootPath + "/" + m_SaveFileName;
+        string filePath = m_RootPath + Path.DirectorySeparatorChar + fileName;
         File.WriteAllText(filePath, jsonStr);
 
         Debug.Log("Save game succesfully saved!");
         return true;
     }
 
-    public bool Deserialize()
+
+    public bool DeserializeAll()
+    {
+        bool success = DeserializeWorld();
+        if (!success)
+            return false;
+
+        success = DeserializeInventory();
+        if (!success)
+            return false;
+
+        success = DeserializePictureAlbum();
+        if (!success)
+            return false;
+
+        return success;
+    }
+
+    public bool DeserializeWorld()
+    {
+        return Deserialize(m_World.Deserialize, m_WorldFileName);
+    }
+
+    public bool DeserializeInventory()
+    {
+        return Deserialize(m_Inventory.Deserialize, m_InventoryFileName);
+    }
+
+    public bool DeserializePictureAlbum()
+    {
+        return Deserialize(m_PictureAlbum.Deserialize, m_PictureAlbumFileName);
+    }
+
+    private bool Deserialize(JSONNodeDelegate deserializeFunction, string fileName)
     {
         //Read the file
         string fileText = "";
         try
         {
-            string filePath = m_RootPath + "/" + m_SaveFileName;
+            string filePath = m_RootPath + Path.DirectorySeparatorChar + fileName;
             fileText = File.ReadAllText(filePath);
         }
         catch (Exception e)
@@ -125,8 +202,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
         {
             JSONNode rootNode = JSON.Parse(fileText);
 
-            m_World.Deserialize(rootNode);
-            m_Inventory.Deserialize(rootNode);
+            deserializeFunction(rootNode);
 
             Debug.Log("Savegame succesfully loaded!");
         }
@@ -140,21 +216,31 @@ public class SaveGameManager : Singleton<SaveGameManager>
         return true;
     }
 
-    //Picture Serialization
-    public string SavePictureToDisk(Texture2D texture)
-    {
-        if (texture == null)
-            return "";
 
-        byte[] bytes = texture.EncodeToPNG();
+    //Picture Serialization
+    public bool SerializePicture(Picture picture)
+    {
+        if (picture == null)
+            return false;
 
         DirectoryInfo pictureDirectory = FindOrCreateDirectory(m_RootDirectory, m_PictureFolder);
+
+        byte[] bytes = picture.Texture.EncodeToPNG();
+
         string fileName = string.Format(m_PictureFileName, GameClock.Instance.GetDateTime().ToString("dd-MM-yyyy_HH-mm-ss"));
-        string path = pictureDirectory + "/" + fileName;
+        string path = pictureDirectory.FullName + Path.DirectorySeparatorChar + fileName;
 
         File.WriteAllBytes(path, bytes);
 
-        return path;
+        picture.TextureFilePath = path;
+
+        Debug.Log("Picture succesfully saved!");
+        return true;
+    }
+
+    private Texture2D DeserializePicture(string path)
+    {
+        return null;
     }
 
     //Utility

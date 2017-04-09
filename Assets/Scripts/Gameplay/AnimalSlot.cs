@@ -102,6 +102,30 @@ public class AnimalSlot : MonoBehaviour
             m_SpriteRenderer.sprite = m_CurrentAnimal.Sprite;
     }
 
+    public int CalculatePictureScore(List<string> tagList, Rect cameraRect)
+    {
+        int score = 0;
+
+        if (HasAnimal() == false)
+            return score;
+
+        //Overlap ratio of our own sprite renderer
+        Rect viewPortRect = m_SpriteRenderer.GetViewportRect();
+        float ratio = viewPortRect.GetOverlapPercentage(cameraRect);
+
+        if (ratio > 0.0f)
+        {
+            score += Mathf.FloorToInt(m_CurrentAnimal.Score * ratio);
+
+            if (tagList.Contains(m_CurrentAnimal.name) == false)
+            {
+                score += m_CurrentAnimal.FirstScoreBonus;
+                tagList.Add(m_CurrentAnimal.name);
+            }
+        }
+
+        return score;
+    }
 
     public bool HasAnimal()
     {

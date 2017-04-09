@@ -22,7 +22,7 @@ public class PictureTakenPanel : MonoBehaviour
             m_PictureCamera.PictureTakenEvent -= OnPictureTaken;
     }
 
-    private void OnPictureTaken(Texture2D texture)
+    private void OnPictureTaken(Picture picture)
     {
         Show();
     }

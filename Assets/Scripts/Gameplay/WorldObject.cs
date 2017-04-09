@@ -11,6 +11,9 @@ public class WorldObject : MonoBehaviour
     public delegate void WorldObjectDelegate(WorldObject worldObject, WorldObject newWorldObject);
 
     [SerializeField]
+    private SpriteRenderer m_SpriteRenderer;
+
+    [SerializeField]
     private WorldObject m_Evolution;
 
     [SerializeField]
@@ -24,6 +27,14 @@ public class WorldObject : MonoBehaviour
     {
         get { return m_EndTime; }
     }
+
+    [Header("Score")]
+    [Space(5)]
+    [SerializeField]
+    private int m_Score;
+
+    [SerializeField]
+    private int m_FirstBonus;
 
     private bool m_IsDestroyed = false;
 
@@ -72,6 +83,34 @@ public class WorldObject : MonoBehaviour
         }
 
         return false;
+    }
+
+    public int CalculatePictureScore(List<string> tagList, Rect cameraRect)
+    {
+        int score = 0;
+
+        //Overlap ratio of our own sprite renderer
+        Rect viewPortRect = m_SpriteRenderer.GetViewportRect();
+        float ratio = viewPortRect.GetOverlapPercentage(cameraRect);
+
+        if (ratio > 0.0f)
+        {
+            score += Mathf.FloorToInt(m_Score * ratio);
+
+            if (tagList.Contains(gameObject.name) == false)
+            {
+                score += m_FirstBonus;
+                tagList.Add(gameObject.name);
+            }
+        }
+
+        //Check for all our animals
+        foreach (AnimalSlot animalSlot in m_AnimalSlots)
+        {
+            score += animalSlot.CalculatePictureScore(tagList, cameraRect);
+        }
+
+        return score;
     }
 
     private void UpdateWorldObjectPrecense()
