@@ -13,19 +13,10 @@ public class PictureCamera : MonoBehaviour
     [SerializeField]
     private PictureFrame m_PictureFrame;
 
-    [SerializeField]
-    private string m_PictureFolder;
-
     private Texture2D m_LastPicture;
     public Texture2D LastPicture
     {
         get { return m_LastPicture; }
-    }
-
-    private string m_LastPicturePath;
-    public string LastPicturePath
-    {
-        get { return m_LastPicturePath; }
     }
 
     private bool m_TakePicture;
@@ -122,21 +113,8 @@ public class PictureCamera : MonoBehaviour
         if (m_PictureSaved)
             return;
 
-        byte[] bytes;
-        bytes = m_LastPicture.EncodeToPNG();
+        string path = SaveGameManager.Instance.SavePictureToDisk(m_LastPicture);
 
-        string folderPath = m_PictureFolder;
-
-        #if UNITY_ANDROID && !UNITY_EDITOR
-            folderPath = DataPathPlugin.GetFirstWriteableExternalDataPath();
-            Debug.Log("Chosen folder: " + folderPath);
-        #endif
-
-        string path = string.Format("{0}/picture_{1}.png", folderPath, GameClock.Instance.GetDateTime().ToString("dd-MM-yyyy_HH-mm-ss"));
-
-        File.WriteAllBytes(path, bytes);
-
-        m_LastPicturePath = path;
         m_PictureSaved = true;
 
         if (PictureSavedEvent != null)

@@ -7,13 +7,26 @@ using UnityEngine;
 
 public class SaveGameManager : Singleton<SaveGameManager>
 {
-    [Header("Filename")]
+    [Header("Root Path")]
     [Space(5)]
     [SerializeField]
     private string m_RootPath;
+    private DirectoryInfo m_RootDirectory;
+
+    [Header("Save Game")]
+    [Space(5)]
 
     [SerializeField]
     private string m_SaveFileName;
+
+    [Header("Pictures")]
+    [Space(5)]
+
+    [SerializeField]
+    private string m_PictureFolder;
+
+    [SerializeField]
+    private string m_PictureFileName;
 
     [Header("Serializable Objects")]
     [Space(5)]
@@ -61,10 +74,11 @@ public class SaveGameManager : Singleton<SaveGameManager>
             }
         #endif
 
+        m_RootDirectory = new DirectoryInfo(m_RootPath);
         Debug.Log("Registered root path: " + m_RootPath);
     }
 
-    //Serialization
+    //Save Game Serialization
     public bool Serialize()
     {
         //Create the root object
@@ -124,5 +138,47 @@ public class SaveGameManager : Singleton<SaveGameManager>
         }
 
         return true;
+    }
+
+    //Picture Serialization
+    public string SavePictureToDisk(Texture2D texture)
+    {
+        if (texture == null)
+            return "";
+
+        byte[] bytes = texture.EncodeToPNG();
+
+        DirectoryInfo pictureDirectory = FindOrCreateDirectory(m_RootDirectory, m_PictureFolder);
+        string fileName = string.Format(m_PictureFileName, GameClock.Instance.GetDateTime().ToString("dd-MM-yyyy_HH-mm-ss"));
+        string path = pictureDirectory + "/" + fileName;
+
+        File.WriteAllBytes(path, bytes);
+
+        return path;
+    }
+
+    //Utility
+    private DirectoryInfo FindOrCreateDirectory(DirectoryInfo rootDirectory, string name)
+    {
+        //Check if that folder already exists
+        DirectoryInfo[] subDirectories = rootDirectory.GetDirectories();
+        DirectoryInfo ourDirectory = null;
+
+        foreach (DirectoryInfo directory in subDirectories)
+        {
+            if (directory.Name == name)
+            {
+                ourDirectory = directory;
+                break;
+            }
+        }
+
+        //If not, create it.
+        if (ourDirectory == null)
+        {
+            ourDirectory = rootDirectory.CreateSubdirectory(name);
+        }
+
+        return ourDirectory;
     }
 }
