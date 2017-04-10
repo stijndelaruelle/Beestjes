@@ -16,6 +16,9 @@ public class SaveGameManager : Singleton<SaveGameManager>
     private string m_RootPath;
     private DirectoryInfo m_RootDirectory;
 
+    private string m_RootPicturePath;
+    private DirectoryInfo m_RootPictureDirectory;
+
     [Header("Save Game")]
     [Space(5)]
 
@@ -73,21 +76,26 @@ public class SaveGameManager : Singleton<SaveGameManager>
         //No more Application.persistentDataPath as it will never return the SD card.
 
         #if UNITY_ANDROID && !UNITY_EDITOR  
-            int numberOfStorageDevices = DataPathPlugin.GetExternalDataPathCount();
+            m_RootPath = DataPathPlugin.GetFirstWriteableExternalDataPath();
+            m_RootPicturePath = DataPathPlugin.GetExternalStoragePublicDirectory();
+            //int numberOfStorageDevices = DataPathPlugin.GetExternalDataPathCount();
 
-            //Backwards as we prefer an external SD card!
-            for (int i = (numberOfStorageDevices - 1); i >= 0; --i)
-            {
-                if (DataPathPlugin.CanReadExternalDataPath(i) && DataPathPlugin.CanWriteExternalDataPath(i))
-                {
-                    m_RootPath = DataPathPlugin.GetExternalDataPath(i);
-                    break;
-                }
-            }
+            ////Backwards as we prefer an external SD card!
+            //for (int i = (numberOfStorageDevices - 1); i >= 0; --i)
+            //{
+            //    if (DataPathPlugin.CanReadExternalDataPath(i) && DataPathPlugin.CanWriteExternalDataPath(i))
+            //    {
+            //        m_RootPath = DataPathPlugin.GetExternalDataPath(i);
+            //        break;
+            //    }
+            //}
         #endif
 
         m_RootDirectory = new DirectoryInfo(m_RootPath);
+        m_RootPictureDirectory = new DirectoryInfo(m_RootPicturePath);
+
         Debug.Log("Registered root path: " + m_RootPath);
+        Debug.Log("Registered picture root path: " + m_RootPicturePath);
     }
 
 
@@ -229,7 +237,11 @@ public class SaveGameManager : Singleton<SaveGameManager>
         if (picture == null)
             return false;
 
-        DirectoryInfo pictureDirectory = FindOrCreateDirectory(m_RootDirectory, m_PictureFolder);
+        DirectoryInfo pictureDirectory = m_RootPictureDirectory;
+        if (m_PictureFolder != "")
+        {
+            pictureDirectory = FindOrCreateDirectory(m_RootPictureDirectory, m_PictureFolder);
+        }
 
         byte[] bytes = picture.Texture.EncodeToPNG();
 
@@ -243,11 +255,19 @@ public class SaveGameManager : Singleton<SaveGameManager>
         picture.TextureFilePath = path;
 
         Debug.Log("Picture succesfully saved!");
+
+        #if UNITY_ANDROID && !UNITY_EDITOR
+            DataPathPlugin.RunMediaScanner(path);
+        #endif
+
         return true;
     }
 
     public Texture2D DeserializePicture(string path)
     {
+        if (DoesFileExist(path) == false)
+            return null;
+
         Texture2D texture = new Texture2D(1, 1);
         byte[] byteArr = File.ReadAllBytes(path);
         texture.LoadImage(byteArr); //Will resize the texture's dimensions.
@@ -295,10 +315,34 @@ public class SaveGameManager : Singleton<SaveGameManager>
             if (count > 0) uniqueFileName += " (" + (count + 1) + ")";
             uniqueFileName += extention;
 
-            fileExists = File.Exists(rootDirectory.FullName + Path.DirectorySeparatorChar + uniqueFileName);
+            fileExists = DoesFileExist(rootDirectory.FullName + Path.DirectorySeparatorChar + uniqueFileName);
             ++count;
         }
 
         return uniqueFileName;
+    }
+
+    public bool DoesFileExist(string path)
+    {
+        return File.Exists(path);
+    }
+
+    public bool DeleteFile(string path)
+    {
+        try
+        {
+            File.Delete(path);
+
+            #if UNITY_ANDROID && !UNITY_EDITOR
+                DataPathPlugin.RunMediaScanner(path);
+            #endif
+            
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning(e.Message);
+            return false;
+        }
     }
 }

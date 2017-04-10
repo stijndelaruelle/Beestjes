@@ -48,12 +48,9 @@ public class Picture
         m_Tags = tags;
     }
 
-    public void LoadTexture()
+    public bool Dispose()
     {
-        if (m_Texture != null)
-            return;
-
-        m_Texture = SaveGameManager.Instance.DeserializePicture(m_TextureFilePath);
+        return SaveGameManager.Instance.DeleteFile(m_TextureFilePath);
     }
 
     public void Serialize(JSONClass rootNode)
@@ -70,9 +67,15 @@ public class Picture
         rootNode.Add("tags", tagArrayNode);
     }
 
-    public void Deserialize(JSONClass rootNode)
+    public bool Deserialize(JSONClass rootNode)
     {
         m_TextureFilePath = rootNode["texture_path"].Value;
+        m_Texture = SaveGameManager.Instance.DeserializePicture(m_TextureFilePath);
+
+        //Texture did not exist / was invalid
+        if (m_Texture == null)
+            return false;
+
         m_Score = rootNode["score"].AsInt;
 
         m_Tags.Clear();
@@ -86,6 +89,8 @@ public class Picture
                 m_Tags.Add(tag);
             }
         }
+
+        return true;
     }
 }
 
@@ -97,11 +102,14 @@ public class PictureAlbum : MonoBehaviour
         get { return m_Pictures; }
     }
 
+    public event PictureDelegate PictureAddEvent;
+    public event PictureDelegate PictureEditEvent;
+    public event PictureDelegate PictureRemoveEvent;
+
     private void Awake()
     {
         m_Pictures = new List<Picture>();
     }
-
 
     public void AddPicture(Picture picture)
     {
@@ -109,12 +117,19 @@ public class PictureAlbum : MonoBehaviour
             return;
 
         m_Pictures.Add(picture);
+
+        if (PictureAddEvent != null)
+            PictureAddEvent(picture);
+
         SaveGameManager.Instance.SerializePictureAlbum();
     }
 
-    public void EditPicture()
+    public void EditPicture(Picture picture)
     {
+        if (PictureEditEvent != null)
+            PictureEditEvent(picture);
 
+        SaveGameManager.Instance.SerializePictureAlbum();
     }
 
     public void RemovePicture(Picture picture)
@@ -125,7 +140,15 @@ public class PictureAlbum : MonoBehaviour
         if (m_Pictures.Contains(picture) == false)
             return;
 
+        bool success = picture.Dispose();
+        if (success == false)
+            return;
+
         m_Pictures.Remove(picture);
+
+        if (PictureRemoveEvent != null)
+            PictureRemoveEvent(picture);
+
         SaveGameManager.Instance.SerializePictureAlbum();
     }
 
@@ -154,9 +177,10 @@ public class PictureAlbum : MonoBehaviour
                 JSONClass pictureNode = pictureArrayNode[i].AsObject;
 
                 Picture picture = new Picture();
-                picture.Deserialize(pictureNode);
+                bool success = picture.Deserialize(pictureNode);
 
-                AddPicture(picture);
+                if (success)
+                    AddPicture(picture);
             }
         }
     }

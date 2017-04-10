@@ -11,15 +11,12 @@ public class PictureDisplay : MonoBehaviour
     protected RawImage m_RawImage;
     protected float m_InitialSize;
 
-    private void Awake()
+    public void Initialize(Texture2D texture)
     {
         m_RectTransform = GetComponent<RectTransform>();
         m_RawImage = GetComponent<RawImage>();
         m_InitialSize = m_RectTransform.sizeDelta.x;
-    }
 
-    public void Initialize(Texture2D texture)
-    {
         if (texture == null)
         {
             m_RawImage.texture = null;

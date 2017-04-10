@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void PictureDelegate(Picture picture);
+
 [RequireComponent(typeof(Camera))]
 public class PictureCamera : MonoBehaviour
 {
-    public delegate void PictureDelegate(Picture picture);
-
     private Camera m_Camera;
 
     [SerializeField]

@@ -22,6 +22,31 @@ public static class DataPathPlugin
         #endif
     }
 
+    //Media
+    public static string GetExternalStoragePublicDirectory()
+    {
+        if (GetDataPathPlugin() == null)
+            return "";
+
+        return GetDataPathPlugin().Call<string>("GetExternalStoragePublicDirectory");
+    }
+
+    public static string GetExternalPicturesDir()
+    {
+        if (GetDataPathPlugin() == null)
+            return "";
+
+        return GetDataPathPlugin().Call<string>("GetExternalPicturesDir");
+    }
+
+    public static void RunMediaScanner(string path)
+    {
+        if (GetDataPathPlugin() == null)
+            return;
+
+        GetDataPathPlugin().Call("RunMediaScanner", path);
+    }
+
     //External
     public static int GetExternalDataPathCount()
     {

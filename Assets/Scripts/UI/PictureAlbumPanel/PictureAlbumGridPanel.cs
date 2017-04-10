@@ -19,6 +19,16 @@ public class PictureAlbumGridPanel : MonoBehaviour
         m_PictureDisplayPanels = new List<PictureDisplayPanel>();
     }
 
+    private void Start()
+    {
+        if (m_PictureAlbum == null)
+            return;
+
+        m_PictureAlbum.PictureAddEvent += OnPictureAdd;
+        m_PictureAlbum.PictureEditEvent += OnPictureEdit;
+        m_PictureAlbum.PictureRemoveEvent += OnPictureRemove;
+    }
+
     private void OnEnable()
     {
         List<Picture> pictures = m_PictureAlbum.Pictures;
@@ -30,12 +40,71 @@ public class PictureAlbumGridPanel : MonoBehaviour
         {
             if (i >= m_PictureDisplayPanels.Count)
             {
-                PictureDisplayPanel newPanel = GameObject.Instantiate<PictureDisplayPanel>(m_PictureDisplayPanelPrefab, m_Content);
-                m_PictureDisplayPanels.Add(newPanel);
+                AddPictureDisplay(pictures[i]);
             }
-
-            pictures[i].LoadTexture();
-            m_PictureDisplayPanels[i].Initialize(pictures[i]);
+            else
+            {
+                m_PictureDisplayPanels[i].Initialize(pictures[i]);
+            }
         }
+    }
+
+    private void OnDestroy()
+    {
+        //Unsubscribe
+        if (m_PictureAlbum != null)
+        {
+            m_PictureAlbum.PictureAddEvent -= OnPictureAdd;
+            m_PictureAlbum.PictureEditEvent -= OnPictureEdit;
+            m_PictureAlbum.PictureRemoveEvent -= OnPictureRemove;
+        }
+
+        foreach (PictureDisplayPanel pictureDisplayPanel in m_PictureDisplayPanels)
+        {
+            pictureDisplayPanel.PictureDisplayRemoveEvent -= OnPictureDisplayRemove;
+            GameObject.Destroy(pictureDisplayPanel.gameObject);
+        }
+
+        m_PictureDisplayPanels.Clear();
+    }
+
+    private void AddPictureDisplay(Picture picture)
+    {
+        PictureDisplayPanel newPanel = GameObject.Instantiate<PictureDisplayPanel>(m_PictureDisplayPanelPrefab, m_Content);
+        newPanel.PictureDisplayRemoveEvent += OnPictureDisplayRemove;
+        newPanel.Initialize(picture);
+
+        m_PictureDisplayPanels.Add(newPanel);
+    }
+
+    //Picture Album Events
+    private void OnPictureAdd(Picture picture)
+    {
+        AddPictureDisplay(picture);
+    }
+
+    private void OnPictureEdit(Picture picture)
+    {
+
+    }
+
+    private void OnPictureRemove(Picture picture)
+    {
+        for (int i = m_PictureDisplayPanels.Count - 1; i >= 0; --i)
+        {
+            if (m_PictureDisplayPanels[i].Picture == picture)
+            {
+                m_PictureDisplayPanels[i].PictureDisplayRemoveEvent -= OnPictureDisplayRemove;
+                GameObject.Destroy(m_PictureDisplayPanels[i].gameObject);
+
+                m_PictureDisplayPanels.RemoveAt(i);
+            }
+        }
+    }
+
+    //Picture Display Panel Events
+    private void OnPictureDisplayRemove(Picture picture)
+    {
+        m_PictureAlbum.RemovePicture(picture);
     }
 }

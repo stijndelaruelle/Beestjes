@@ -7,6 +7,12 @@ public class PictureDisplayPanel : MonoBehaviour
     [SerializeField]
     private PictureDisplay m_PictureDisplay;
     private Picture m_Picture;
+    public Picture Picture
+    {
+        get { return m_Picture; }
+    }
+
+    public event PictureDelegate PictureDisplayRemoveEvent;
 
     public void Initialize(Picture picture)
     {
@@ -17,5 +23,11 @@ public class PictureDisplayPanel : MonoBehaviour
     public void Share()
     {
         SharePlugin.ShareImage("Share picture...", m_Picture.TextureFilePath, "png");
+    }
+
+    public void Delete()
+    {
+        if (PictureDisplayRemoveEvent != null)
+            PictureDisplayRemoveEvent(m_Picture);
     }
 }
