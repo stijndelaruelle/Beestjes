@@ -78,13 +78,16 @@ public class Picture
         rootNode.Add("timestamp", m_Timestamp.ToString("dd/MM/yyyy HH:mm:ss"));
         rootNode.Add("score", new JSONData(m_Score));
 
-        JSONArray tagArrayNode = new JSONArray();
-        foreach (string tag in m_Tags)
+        if (m_Tags.Count > 0)
         {
-            tagArrayNode.Add(new JSONData(tag));
-        }
+            JSONArray tagArrayNode = new JSONArray();
+            foreach (string tag in m_Tags)
+            {
+                tagArrayNode.Add(new JSONData(tag));
+            }
 
-        rootNode.Add("tags", tagArrayNode);
+            rootNode.Add("tags", tagArrayNode);
+        }
     }
 
     public bool Deserialize(JSONClass rootNode)

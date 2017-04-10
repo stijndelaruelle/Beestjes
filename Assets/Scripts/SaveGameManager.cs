@@ -32,6 +32,9 @@ public class SaveGameManager : Singleton<SaveGameManager>
     [SerializeField]
     private string m_PictureAlbumFileName;
 
+    [SerializeField]
+    private string m_CompetitionFileName;
+
     [Header("Pictures")]
     [Space(5)]
 
@@ -51,6 +54,9 @@ public class SaveGameManager : Singleton<SaveGameManager>
 
     [SerializeField]
     private PictureAlbum m_PictureAlbum;
+
+    [SerializeField]
+    private Competition m_Competition;
 
     private void Start()
     {
@@ -115,6 +121,10 @@ public class SaveGameManager : Singleton<SaveGameManager>
         if (!success)
             return false;
 
+        success = SerializeCompetition();
+        if (!success)
+            return false;
+
         return success;
     }
 
@@ -131,6 +141,11 @@ public class SaveGameManager : Singleton<SaveGameManager>
     public bool SerializePictureAlbum()
     {
         return Serialize(m_PictureAlbum.Serialize, m_PictureAlbumFileName);
+    }
+
+    public bool SerializeCompetition()
+    {
+        return Serialize(m_Competition.Serialize, m_CompetitionFileName);
     }
 
     private bool Serialize(JSONClassDelegate serializeFunction, string fileName)
@@ -170,6 +185,10 @@ public class SaveGameManager : Singleton<SaveGameManager>
         if (!success)
             return false;
 
+        success = DeserializeCompetition();
+        if (!success)
+            return false;
+
         return success;
     }
 
@@ -187,6 +206,12 @@ public class SaveGameManager : Singleton<SaveGameManager>
     {
         return Deserialize(m_PictureAlbum.Deserialize, null, m_PictureAlbumFileName);
     }
+
+    public bool DeserializeCompetition()
+    {
+        return Deserialize(m_Competition.Deserialize, null, m_CompetitionFileName);
+    }
+
 
     private bool Deserialize(JSONNodeDelegate deserializeFunction, Action newUserFunction, string fileName)
     {
