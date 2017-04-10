@@ -23,6 +23,6 @@ public class SunMoonRotateUpwards : MonoBehaviour
         Vector3 rotatorEuler = m_Rotator.transform.localRotation.eulerAngles;
         rotatorEuler.z *= -1.0f;
 
-        transform.localRotation *= Quaternion.Euler(rotatorEuler);
+        transform.localRotation = Quaternion.Euler(rotatorEuler);
     }
 }

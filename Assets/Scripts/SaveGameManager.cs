@@ -16,6 +16,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
     private string m_RootPath;
     private DirectoryInfo m_RootDirectory;
 
+    [SerializeField]
     private string m_RootPicturePath;
     private DirectoryInfo m_RootPictureDirectory;
 

@@ -29,7 +29,16 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        TickLoop();
+        GameClock.Instance.DateTimeChangedEvent += OnDateTimeChanged;
+        OnDateTimeChanged(GameClock.Instance.GetDateTime());
+    }
+
+    private void OnDestroy()
+    {
+        GameClock gameClock = GameClock.Instance;
+
+        if (gameClock != null)
+            gameClock.DateTimeChangedEvent -= OnDateTimeChanged;
     }
 
     private void TickLoop()
@@ -152,6 +161,11 @@ public class World : MonoBehaviour
     }
 
     //Events
+    private void OnDateTimeChanged(DateTime dateTime)
+    {
+        TickLoop();
+    }
+
     private void OnWorldObjectDestroyed(WorldObject worldObject, WorldObject newWorldObjectPrefab)
     {
         Vector3 position = worldObject.transform.position;

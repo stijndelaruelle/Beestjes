@@ -10,20 +10,20 @@ public class SunMoonRotator : MonoBehaviour
 
     private void Start()
     {
-        Refresh();
+        GameClock.Instance.DateTimeChangedEvent += OnDateTimeChanged;
+        OnDateTimeChanged(GameClock.Instance.GetDateTime());
     }
 
-    //#if (UNITY_EDITOR)
-    //private void Update()
-    //{
-    //    Refresh();
-    //}
-    //#endif
-
-    private void Refresh()
+    private void OnDestroy()
     {
-        DateTime date = GameClock.Instance.GetDateTime();
+        GameClock gameClock = GameClock.Instance;
 
+        if (gameClock != null)
+            gameClock.DateTimeChangedEvent -= OnDateTimeChanged;
+    }
+
+    private void Refresh(DateTime date)
+    {
         float percentage = 0.0f;
         PartOfDay partOfDay = SuntimeCalculator.GetPartOfDay(52.079208, 5.140324, date, ref percentage);
 
@@ -60,4 +60,9 @@ public class SunMoonRotator : MonoBehaviour
             RefreshEvent();
     }
 
+    //Events
+    private void OnDateTimeChanged(DateTime dateTime)
+    {
+        Refresh(dateTime);
+    }
 }
