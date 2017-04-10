@@ -1,6 +1,8 @@
 ﻿using SimpleJSON;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public class Picture
@@ -16,6 +18,12 @@ public class Picture
     public Texture2D Texture
     {
         get { return m_Texture; }
+    }
+
+    private DateTime m_Timestamp;
+    public DateTime TimeStamp
+    {
+        get { return m_Timestamp; }
     }
 
     private int m_Score;
@@ -39,13 +47,24 @@ public class Picture
         m_Texture = null;
         m_Score = 0;
         m_Tags = new List<string>();
+        m_Timestamp = DateTime.Now;
     }
 
-    public Picture(Texture2D texture, int score, List<string> tags)
+    public Picture(Texture2D texture, DateTime timestamp, int score, List<string> tags)
     {
         m_Texture = texture;
+        m_Timestamp = timestamp;
         m_Score = score;
         m_Tags = tags;
+    }
+
+    public Picture(Picture picture)
+    {
+        m_TextureFilePath = picture.m_TextureFilePath;
+        m_Texture = picture.m_Texture;
+        m_Timestamp = picture.m_Timestamp;
+        m_Score = picture.m_Score;
+        m_Tags = picture.m_Tags;
     }
 
     public bool Dispose()
@@ -56,6 +75,7 @@ public class Picture
     public void Serialize(JSONClass rootNode)
     {
         rootNode.Add("texture_path", new JSONData(m_TextureFilePath));
+        rootNode.Add("timestamp", m_Timestamp.ToString("dd/MM/yyyy HH:mm:ss"));
         rootNode.Add("score", new JSONData(m_Score));
 
         JSONArray tagArrayNode = new JSONArray();
@@ -75,6 +95,20 @@ public class Picture
         //Texture did not exist / was invalid
         if (m_Texture == null)
             return false;
+
+        //Timstamp
+        JSONNode timestampNode = rootNode["timestamp"];
+        if (timestampNode != null)
+        {
+            try
+            {
+                m_Timestamp = DateTime.ParseExact(timestampNode.Value, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
+                throw new System.Exception("The save game has an invalid \"last_refresh_time\" node! Expected DateTime. Source: " + timestampNode.ToString() + " Exception: " + e.Message);
+            }
+        }
 
         m_Score = rootNode["score"].AsInt;
 

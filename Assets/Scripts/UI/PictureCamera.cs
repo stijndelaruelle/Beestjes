@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public delegate void PictureDelegate(Picture picture);
@@ -101,7 +102,7 @@ public class PictureCamera : MonoBehaviour
         List<string> tagList = new List<string>();
         int score = m_World.CalculatePictureScore(tagList, m_Camera.rect);
 
-        m_LastPicture = new Picture(pictureTexture, score, tagList);
+        m_LastPicture = new Picture(pictureTexture, DateTime.Now, score, tagList);
         m_TakePicture = false;
         m_PictureSaved = false;
 
