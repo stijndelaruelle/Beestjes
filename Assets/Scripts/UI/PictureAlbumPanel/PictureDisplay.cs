@@ -7,6 +7,9 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RawImage))]
 public class PictureDisplay : MonoBehaviour
 {
+    [SerializeField]
+    private Texture2D m_DefaultTexture;
+
     protected RectTransform m_RectTransform;
     protected RawImage m_RawImage;
     protected float m_InitialSize;
@@ -19,7 +22,7 @@ public class PictureDisplay : MonoBehaviour
 
         if (texture == null)
         {
-            m_RawImage.texture = null;
+            m_RawImage.texture = m_DefaultTexture;
             return;
         }
 

@@ -11,10 +11,16 @@ public class Competition : MonoBehaviour
         get { return m_Picture; }
     }
 
+    public event PictureDelegate CompetitionPictureChangedEvent;
+
     //Rewards
     public void SetPicture(Picture picture)
     {
         m_Picture = picture;
+
+        if (CompetitionPictureChangedEvent != null)
+            CompetitionPictureChangedEvent(picture);
+
         SaveGameManager.Instance.SerializeCompetition();
     }
 
