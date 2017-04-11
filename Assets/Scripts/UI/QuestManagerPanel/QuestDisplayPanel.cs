@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MagazineDisplayPanel : MonoBehaviour
+public class QuestDisplayPanel : MonoBehaviour
 {
-    private Magazine m_Magazine;
+    private Quest m_Quest;
 
     [SerializeField]
     private Text m_Title;
@@ -16,21 +16,21 @@ public class MagazineDisplayPanel : MonoBehaviour
     [SerializeField]
     private PictureDisplay m_PictureDisplay;
 
-    public void Initialize(Magazine magazine)
+    public void Initialize(Quest Quest)
     {
-        m_Magazine = magazine;
-        Refresh(m_Magazine.Picture);
+        m_Quest = Quest;
+        Refresh(m_Quest.Picture);
     }
 
     private void Start()
     {
-        m_Magazine.MagazinePictureChangedEvent += OnMagazinePictureChanged;
+        m_Quest.QuestPictureChangedEvent += OnQuestPictureChanged;
     }
 
     private void OnDestroy()
     {
-        if (m_Magazine != null)
-            m_Magazine.MagazinePictureChangedEvent -= OnMagazinePictureChanged;
+        if (m_Quest != null)
+            m_Quest.QuestPictureChangedEvent -= OnQuestPictureChanged;
     }
 
     private void Refresh(Picture picture)
@@ -42,7 +42,7 @@ public class MagazineDisplayPanel : MonoBehaviour
     }
 
     //Events
-    private void OnMagazinePictureChanged(Picture picture)
+    private void OnQuestPictureChanged(Picture picture)
     {
         Refresh(picture);
     }

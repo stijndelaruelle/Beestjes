@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LastPictureSelectForMagazineButton : MonoBehaviour
+public class LastPictureSelectForQuestButton : MonoBehaviour
 {
     [SerializeField]
     private PictureCamera m_PictureCamera;
@@ -11,7 +11,7 @@ public class LastPictureSelectForMagazineButton : MonoBehaviour
     private LastPictureTakenPanel m_PictureTakenPanel;
 
     [SerializeField]
-    private MagazineManager m_MagazineManager;
+    private QuestManager m_QuestManager;
 
     private void OnDestroy()
     {
@@ -19,7 +19,7 @@ public class LastPictureSelectForMagazineButton : MonoBehaviour
             m_PictureCamera.PictureSavedEvent -= OnPictureSaved;
     }
 
-    public void SelectForMagazine()
+    public void SelectForQuest()
     {
         //Save
         m_PictureCamera.PictureSavedEvent += OnPictureSaved;
@@ -28,7 +28,7 @@ public class LastPictureSelectForMagazineButton : MonoBehaviour
 
     private void OnPictureSaved(Picture picture)
     {
-        m_MagazineManager.SetPicture(picture);
+        m_QuestManager.SetPicture(picture);
 
         //Hide window
         m_PictureTakenPanel.Hide();

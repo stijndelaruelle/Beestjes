@@ -33,7 +33,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
     private string m_PictureAlbumFileName;
 
     [SerializeField]
-    private string m_MagazineManagerFileName;
+    private string m_QuestManagerFileName;
 
     [Header("Pictures")]
     [Space(5)]
@@ -56,7 +56,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
     private PictureAlbum m_PictureAlbum;
 
     [SerializeField]
-    private MagazineManager m_MagazineManager;
+    private QuestManager m_QuestManager;
 
     private void Start()
     {
@@ -121,7 +121,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
         if (!success)
             return false;
 
-        success = SerializeMagazineManager();
+        success = SerializeQuestManager();
         if (!success)
             return false;
 
@@ -143,9 +143,9 @@ public class SaveGameManager : Singleton<SaveGameManager>
         return Serialize(m_PictureAlbum.Serialize, m_PictureAlbumFileName);
     }
 
-    public bool SerializeMagazineManager()
+    public bool SerializeQuestManager()
     {
-        return Serialize(m_MagazineManager.Serialize, m_MagazineManagerFileName);
+        return Serialize(m_QuestManager.Serialize, m_QuestManagerFileName);
     }
 
     private bool Serialize(JSONClassDelegate serializeFunction, string fileName)
@@ -185,7 +185,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
         if (!success)
             return false;
 
-        success = DeserializeMagazineManager();
+        success = DeserializeQuestManager();
         if (!success)
             return false;
 
@@ -207,9 +207,9 @@ public class SaveGameManager : Singleton<SaveGameManager>
         return Deserialize(m_PictureAlbum.Deserialize, null, m_PictureAlbumFileName);
     }
 
-    public bool DeserializeMagazineManager()
+    public bool DeserializeQuestManager()
     {
-        return Deserialize(m_MagazineManager.Deserialize, m_MagazineManager.OnNewUser, m_MagazineManagerFileName);
+        return Deserialize(m_QuestManager.Deserialize, m_QuestManager.OnNewUser, m_QuestManagerFileName);
     }
 
 

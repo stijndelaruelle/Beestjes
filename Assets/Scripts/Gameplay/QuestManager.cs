@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Magazine
+public class Quest
 {
     private Picture m_Picture;
     public Picture Picture
@@ -14,9 +14,9 @@ public class Magazine
 
     //Rewards (Definition?)
 
-    public event PictureDelegate MagazinePictureChangedEvent;
+    public event PictureDelegate QuestPictureChangedEvent;
 
-    private void UpdateMagazine()
+    private void UpdateQuest()
     {
         DateTime timestamp;
         if (m_Picture == null)
@@ -28,13 +28,13 @@ public class Magazine
             timestamp = m_Picture.TimeStamp;
         }
 
-        //Determine when the next magazine deadline ends
+        //Determine when the next Quest deadline ends
 
         //Determine whether or not that time has been exceeded
 
         //If so, hand out rewards!
 
-        //Once rewards are handed out delete this picture from the magazine (users can close the app while being prompted)
+        //Once rewards are handed out delete this picture from the Quest (users can close the app while being prompted)
     }
 
     public void SetPicture(Picture picture)
@@ -47,8 +47,8 @@ public class Magazine
         m_Picture = picture;
         m_Picture.TextureChangedEvent += OnPictureTextureChanged;
 
-        if (MagazinePictureChangedEvent != null)
-            MagazinePictureChangedEvent(picture);
+        if (QuestPictureChangedEvent != null)
+            QuestPictureChangedEvent(picture);
     }
 
     public void Serialize(JSONClass rootNode)
@@ -72,7 +72,7 @@ public class Magazine
             m_Picture = picture;  
         }
 
-        UpdateMagazine();
+        UpdateQuest();
 
         return success;
     }
@@ -80,97 +80,97 @@ public class Magazine
     //Events
     private void OnPictureTextureChanged(Texture2D texture)
     {
-        if (MagazinePictureChangedEvent != null)
-            MagazinePictureChangedEvent(m_Picture);
+        if (QuestPictureChangedEvent != null)
+            QuestPictureChangedEvent(m_Picture);
     }
 }
 
-public class MagazineManager : MonoBehaviour
+public class QuestManager : MonoBehaviour
 {
-    public delegate void MagazineDelegate(Magazine magazine);
+    public delegate void QuestDelegate(Quest Quest);
      
-    private List<Magazine> m_Magazines;
-    public List<Magazine> Magazines
+    private List<Quest> m_Quests;
+    public List<Quest> Quests
     {
-        get { return m_Magazines; }
+        get { return m_Quests; }
     }
 
-    public event MagazineDelegate MagazineChangedEvent;
+    public event QuestDelegate QuestChangedEvent;
 
     private void Awake()
     {
-        m_Magazines = new List<Magazine>();
+        m_Quests = new List<Quest>();
     }
 
     private void OnDestroy()
     {
-        foreach (Magazine magazine in m_Magazines)
+        foreach (Quest Quest in m_Quests)
         {
-            magazine.MagazinePictureChangedEvent -= OnMagazinePictureChangedEvent;
+            Quest.QuestPictureChangedEvent -= OnQuestPictureChangedEvent;
         }
 
-        m_Magazines.Clear();
+        m_Quests.Clear();
     }
 
     public void SetPicture(Picture picture)
     {
-        //SUPER LAME, this entire setup is so that we can have multiple magazines running at once
+        //SUPER LAME, this entire setup is so that we can have multiple Quests running at once
         //But for now we only have one, change this later on
 
-        m_Magazines[0].SetPicture(picture);
+        m_Quests[0].SetPicture(picture);
     }
 
-    private void AddMagazine(Magazine magazine)
+    private void AddQuest(Quest Quest)
     {
-        if (m_Magazines == null)
+        if (m_Quests == null)
             return;
 
-        magazine.MagazinePictureChangedEvent += OnMagazinePictureChangedEvent;
-        m_Magazines.Add(magazine);
+        Quest.QuestPictureChangedEvent += OnQuestPictureChangedEvent;
+        m_Quests.Add(Quest);
     }
 
 
     public void Serialize(JSONNode rootNode)
     {
-        JSONArray magazineArrayNode = new JSONArray();
-        foreach (Magazine magazine in m_Magazines)
+        JSONArray QuestArrayNode = new JSONArray();
+        foreach (Quest Quest in m_Quests)
         {
-            JSONClass magazineNode = new JSONClass();
-            magazine.Serialize(magazineNode);
+            JSONClass QuestNode = new JSONClass();
+            Quest.Serialize(QuestNode);
 
-            magazineArrayNode.Add(magazineNode);
+            QuestArrayNode.Add(QuestNode);
         }
 
-        rootNode.Add("magazines", magazineArrayNode);
+        rootNode.Add("Quests", QuestArrayNode);
     }
 
     public void Deserialize(JSONNode rootNode)
     {
-        JSONArray pictureArrayNode = rootNode["magazines"].AsArray;
+        JSONArray pictureArrayNode = rootNode["Quests"].AsArray;
         if (pictureArrayNode != null)
         {
             for (int i = 0; i < pictureArrayNode.Count; ++i)
             {
-                JSONClass magazineNode = pictureArrayNode[i].AsObject;
+                JSONClass QuestNode = pictureArrayNode[i].AsObject;
 
-                Magazine magazine = new Magazine();
-                bool success = magazine.Deserialize(magazineNode);
+                Quest Quest = new Quest();
+                bool success = Quest.Deserialize(QuestNode);
 
                 if (success)
-                    AddMagazine(magazine);
+                    AddQuest(Quest);
             }
         }
     }
 
     //Events
-    private void OnMagazinePictureChangedEvent(Picture picture)
+    private void OnQuestPictureChangedEvent(Picture picture)
     {
-        SaveGameManager.Instance.SerializeMagazineManager();
+        SaveGameManager.Instance.SerializeQuestManager();
     }
 
     public void OnNewUser()
     {
         //TEMP
-        AddMagazine(new Magazine());
+        AddQuest(new Quest());
     }
 }

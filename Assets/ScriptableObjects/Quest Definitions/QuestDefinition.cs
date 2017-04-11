@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Beestjes/Magazine Definition")]
-public class MagazineDefinition : ScriptableObject
+[CreateAssetMenu(menuName = "Beestjes/Quest Definition")]
+public class QuestDefinition : ScriptableObject
 {
     [Space(5)]
     [SerializeField]

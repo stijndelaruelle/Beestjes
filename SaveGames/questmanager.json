@@ -1,0 +1,15 @@
+{ 
+  "Quests": [ 
+    { 
+      "selected_picture": { 
+        "texture_path": "E:\\Unity Projects\\Beestjes\\Beestjes\\SaveGames\\Beestjes\\picture_11-04-2017_18-21-22.png", 
+        "timestamp": "11/04/2017 18:21:19", 
+        "score": 180, 
+        "tags": [ 
+          "Bush_2_FullSize(Clone)", 
+          "Animal_Konijn"
+          ]
+        }
+      }
+    ]
+  }
