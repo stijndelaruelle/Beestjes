@@ -9,8 +9,16 @@ public class Quest
 {
     private QuestListDefinition m_QuestListDefinition;
     private QuestDefinition m_QuestDefinition;
+    public QuestDefinition QuestDefinition
+    {
+        get { return m_QuestDefinition; }
+    }
 
     private DateTime m_Deadline;
+    public DateTime Deadline
+    {
+        get { return m_Deadline; }
+    }
 
     private Picture m_SelectedPicture;
     public Picture SelectedPicture

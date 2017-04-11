@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,10 +12,13 @@ public class QuestDisplayPanel : MonoBehaviour
     private Text m_Title;
 
     [SerializeField]
-    private Text m_InfoText;
+    private PictureDisplay m_PictureDisplay;
 
     [SerializeField]
-    private PictureDisplay m_PictureDisplay;
+    private Text m_DeadlineText;
+
+    [SerializeField]
+    private CountdownTimerText m_CountdownTimerText;
 
     public void Initialize(Quest Quest)
     {
@@ -35,10 +39,19 @@ public class QuestDisplayPanel : MonoBehaviour
 
     private void Refresh(Picture picture)
     {
+        //Title
+        m_Title.text = m_Quest.QuestDefinition.Title;
+
+        //Picture
         if (picture == null)
             m_PictureDisplay.Initialize(null);
         else
             m_PictureDisplay.Initialize(picture.Texture);
+
+        //Deadline
+        DateTime deadline = m_Quest.Deadline;
+        m_DeadlineText.text = deadline.ToString("dd/MM/yyyy HH:mm:ss");
+        m_CountdownTimerText.SetTargetTime(deadline);
     }
 
     //Events

@@ -38,9 +38,9 @@ public class QuestDefinition : ScriptableObject
                                          (int)m_DeadlineTime.x, (int)m_DeadlineTime.y, (int)m_DeadlineTime.z);
 
         //Check if the deadline has already passed for today, set it to tomorrow
-        if (deadline > currentDateTime)
+        if (currentDateTime > deadline)
         {
-            deadline.AddDays(1);
+            deadline = deadline.AddDays(1);
         }
 
         return deadline;

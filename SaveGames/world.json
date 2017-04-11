@@ -1,0 +1,27 @@
+{ 
+  "last_tick_time": "11/04/2017 19:43:29", 
+  "world_objects": [ 
+    { 
+      "prefab_name": "Bush_2_FullSize", 
+      "end_time": "12/04/2017 19:43:29", 
+      "position_x": 0, 
+      "position_y": -1, 
+      "position_z": 0, 
+      "is_flipped": false, 
+      "animal_slots": [ 
+        { 
+          "animal_id": 1, 
+          "end_time": "11/04/2017 19:49:18"
+          }, 
+        { 
+          "animal_id": -1, 
+          "end_time": "01/01/0001 00:00:00"
+          }, 
+        { 
+          "animal_id": 0, 
+          "end_time": "11/04/2017 19:56:55"
+          }
+        ]
+      }
+    ]
+  }
