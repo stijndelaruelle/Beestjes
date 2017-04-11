@@ -2,30 +2,48 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public class Quest
 {
-    private Picture m_Picture;
-    public Picture Picture
+    private QuestListDefinition m_QuestListDefinition;
+    private QuestDefinition m_QuestDefinition;
+
+    private DateTime m_Deadline;
+
+    private Picture m_SelectedPicture;
+    public Picture SelectedPicture
     {
-        get { return m_Picture; }
+        get { return m_SelectedPicture; }
     }
 
-    //Rewards (Definition?)
+    public event PictureDelegate QuestSelectedPictureChangedEvent;
 
-    public event PictureDelegate QuestPictureChangedEvent;
+    public Quest(QuestListDefinition questListDefinition)
+    {
+        m_QuestListDefinition = questListDefinition;
+        m_QuestDefinition = null;
+        m_Deadline = DateTime.MinValue;
+    }
+
+    public Quest(QuestListDefinition questListDefinition, QuestDefinition questDefinition, DateTime deadline)
+    {
+        m_QuestListDefinition = questListDefinition;
+        m_QuestDefinition = questDefinition;
+        m_Deadline = deadline;
+    }
 
     private void UpdateQuest()
     {
         DateTime timestamp;
-        if (m_Picture == null)
+        if (m_SelectedPicture == null)
         {
             timestamp = GameClock.Instance.GetDateTime();
         }
         else
         {
-            timestamp = m_Picture.TimeStamp;
+            timestamp = m_SelectedPicture.TimeStamp;
         }
 
         //Determine when the next Quest deadline ends
@@ -39,56 +57,92 @@ public class Quest
 
     public void SetPicture(Picture picture)
     {
-        if (m_Picture != null)
+        if (m_SelectedPicture != null)
         {
-            m_Picture.TextureChangedEvent -= OnPictureTextureChanged;
+            m_SelectedPicture.TextureChangedEvent -= OnPictureTextureChanged;
         }
 
-        m_Picture = picture;
-        m_Picture.TextureChangedEvent += OnPictureTextureChanged;
+        m_SelectedPicture = picture;
+        m_SelectedPicture.TextureChangedEvent += OnPictureTextureChanged;
 
-        if (QuestPictureChangedEvent != null)
-            QuestPictureChangedEvent(picture);
+        if (QuestSelectedPictureChangedEvent != null)
+            QuestSelectedPictureChangedEvent(picture);
     }
 
-    public void Serialize(JSONClass rootNode)
+    public void Serialize(JSONClass questNode)
     {
-        //Picture
-        JSONClass pictureNode = new JSONClass();
-        m_Picture.Serialize(pictureNode);
+        if (m_QuestDefinition == null)
+            return;
 
-        rootNode.Add("selected_picture", pictureNode);
-    }
+        //Quest ID
+        int id = m_QuestListDefinition.GetID(m_QuestDefinition);
+        questNode.Add("item_id", new JSONData(id));
 
-    public bool Deserialize(JSONClass rootNode)
-    {
-        JSONClass pictureNode = rootNode["selected_picture"].AsObject;
+        //Deadline
+        questNode.Add("deadline", m_Deadline.ToString("dd/MM/yyyy HH:mm:ss"));
 
-        Picture picture = new Picture();
-        bool success = picture.Deserialize(pictureNode);
-
-        if (success)
+        //Selected picture
+        if (m_SelectedPicture != null)
         {
-            m_Picture = picture;  
+            JSONClass pictureNode = new JSONClass();
+            m_SelectedPicture.Serialize(pictureNode);
+
+            questNode.Add("selected_picture", pictureNode);
+        }
+    }
+
+    public void Deserialize(JSONClass questNode)
+    {
+        //Quest ID
+        int id = (questNode["quest_id"].AsInt);
+        m_QuestDefinition = m_QuestListDefinition.GetQuestDefinition(id);
+
+        //Deadline
+        JSONNode timestampNode = questNode["deadline"];
+        if (timestampNode != null)
+        {
+            try
+            {
+                m_Deadline = DateTime.ParseExact(timestampNode.Value, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
+                throw new System.Exception("The quest save file has an invalid \"deadline\" node! Expected DateTime. Source: " + timestampNode.ToString() + " Exception: " + e.Message);
+            }
+        }
+
+        //Selected picture
+        JSONClass pictureNode = questNode["selected_picture"].AsObject;
+
+        if (pictureNode != null)
+        {
+            Picture picture = new Picture();
+            bool success = picture.Deserialize(pictureNode);
+
+            if (success)
+            {
+                m_SelectedPicture = picture;
+            }
         }
 
         UpdateQuest();
-
-        return success;
     }
 
     //Events
     private void OnPictureTextureChanged(Texture2D texture)
     {
-        if (QuestPictureChangedEvent != null)
-            QuestPictureChangedEvent(m_Picture);
+        if (QuestSelectedPictureChangedEvent != null)
+            QuestSelectedPictureChangedEvent(m_SelectedPicture);
     }
 }
 
 public class QuestManager : MonoBehaviour
 {
     public delegate void QuestDelegate(Quest Quest);
-     
+
+    [SerializeField]
+    private QuestListDefinition m_QuestListDefinition;
+
     private List<Quest> m_Quests;
     public List<Quest> Quests
     {
@@ -106,7 +160,7 @@ public class QuestManager : MonoBehaviour
     {
         foreach (Quest Quest in m_Quests)
         {
-            Quest.QuestPictureChangedEvent -= OnQuestPictureChangedEvent;
+            Quest.QuestSelectedPictureChangedEvent -= OnQuestPictureChangedEvent;
         }
 
         m_Quests.Clear();
@@ -125,8 +179,10 @@ public class QuestManager : MonoBehaviour
         if (m_Quests == null)
             return;
 
-        Quest.QuestPictureChangedEvent += OnQuestPictureChangedEvent;
+        Quest.QuestSelectedPictureChangedEvent += OnQuestPictureChangedEvent;
         m_Quests.Add(Quest);
+
+        SaveGameManager.Instance.SerializeQuestManager();
     }
 
 
@@ -153,11 +209,9 @@ public class QuestManager : MonoBehaviour
             {
                 JSONClass QuestNode = pictureArrayNode[i].AsObject;
 
-                Quest Quest = new Quest();
-                bool success = Quest.Deserialize(QuestNode);
-
-                if (success)
-                    AddQuest(Quest);
+                Quest Quest = new Quest(m_QuestListDefinition);
+                Quest.Deserialize(QuestNode);
+                AddQuest(Quest);
             }
         }
     }
@@ -171,6 +225,7 @@ public class QuestManager : MonoBehaviour
     public void OnNewUser()
     {
         //TEMP
-        AddQuest(new Quest());
+        QuestDefinition firstQuestDefinition = m_QuestListDefinition.GetQuestDefinition(0);
+        AddQuest(new Quest(m_QuestListDefinition, firstQuestDefinition, firstQuestDefinition.CalculateDeadline()));
     }
 }

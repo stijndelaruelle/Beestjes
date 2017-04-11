@@ -29,4 +29,20 @@ public class QuestDefinition : ScriptableObject
     {
         get { return m_Rewards; }
     }
+
+    public DateTime CalculateDeadline()
+    {
+        //Calculate the deadline
+        DateTime currentDateTime = GameClock.Instance.GetDateTime();
+        DateTime deadline = new DateTime(currentDateTime.Year, currentDateTime.Month, currentDateTime.Day,
+                                         (int)m_DeadlineTime.x, (int)m_DeadlineTime.y, (int)m_DeadlineTime.z);
+
+        //Check if the deadline has already passed for today, set it to tomorrow
+        if (deadline > currentDateTime)
+        {
+            deadline.AddDays(1);
+        }
+
+        return deadline;
+    }
 }

@@ -133,7 +133,7 @@ public class Picture
             }
             catch (Exception e)
             {
-                throw new System.Exception("The save game has an invalid \"last_refresh_time\" node! Expected DateTime. Source: " + timestampNode.ToString() + " Exception: " + e.Message);
+                throw new System.Exception("The picturealbum save game has an invalid \"timestamp\" node! Expected DateTime. Source: " + timestampNode.ToString() + " Exception: " + e.Message);
             }
         }
 

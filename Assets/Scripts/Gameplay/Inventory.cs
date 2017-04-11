@@ -8,8 +8,8 @@ public delegate void InventoryItemDelegate(InventoryItem inventoryItem);
 public class InventoryItem
 {
     private ItemListDefinition m_ItemListDefinition;
-
     private ItemDefinition m_ItemDefinition;
+
     public Sprite Picture
     {
         get { return m_ItemDefinition.Sprite; }
@@ -68,6 +68,9 @@ public class InventoryItem
 
     public void Serialize(JSONClass itemNode)
     {
+        if (m_ItemDefinition == null)
+            return;
+
         int id = m_ItemListDefinition.GetID(m_ItemDefinition);
         itemNode.Add("item_id", new JSONData(id));
         itemNode.Add("amount", new JSONData(m_Amount));
@@ -76,9 +79,9 @@ public class InventoryItem
     public void Deserialize(JSONClass itemNode)
     {
         int id = (itemNode["item_id"].AsInt);
-        m_Amount = itemNode["amount"].AsInt;
-
         m_ItemDefinition = m_ItemListDefinition.GetItemDefinition(id);
+
+        m_Amount = itemNode["amount"].AsInt;
     }
 }
 

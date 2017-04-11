@@ -19,18 +19,18 @@ public class QuestDisplayPanel : MonoBehaviour
     public void Initialize(Quest Quest)
     {
         m_Quest = Quest;
-        Refresh(m_Quest.Picture);
+        Refresh(m_Quest.SelectedPicture);
     }
 
     private void Start()
     {
-        m_Quest.QuestPictureChangedEvent += OnQuestPictureChanged;
+        m_Quest.QuestSelectedPictureChangedEvent += OnQuestSelectedPictureChanged;
     }
 
     private void OnDestroy()
     {
         if (m_Quest != null)
-            m_Quest.QuestPictureChangedEvent -= OnQuestPictureChanged;
+            m_Quest.QuestSelectedPictureChangedEvent -= OnQuestSelectedPictureChanged;
     }
 
     private void Refresh(Picture picture)
@@ -42,7 +42,7 @@ public class QuestDisplayPanel : MonoBehaviour
     }
 
     //Events
-    private void OnQuestPictureChanged(Picture picture)
+    private void OnQuestSelectedPictureChanged(Picture picture)
     {
         Refresh(picture);
     }

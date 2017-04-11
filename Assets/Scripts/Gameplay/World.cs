@@ -216,7 +216,7 @@ public class World : MonoBehaviour
             }
             catch (Exception e)
             {
-                throw new System.Exception("The save game has an invalid \"last_refresh_time\" node! Expected DateTime. Source: " + lastRefreshTimeNode.ToString() + " Exception: " + e.Message);
+                throw new System.Exception("The world save game has an invalid \"last_tick_time\" node! Expected DateTime. Source: " + lastRefreshTimeNode.ToString() + " Exception: " + e.Message);
             }
         }
 

@@ -14,7 +14,7 @@ public class QuestListDefinition : ScriptableObject
         if (m_QuestList == null)
             return null;
 
-        if (QuestID < 0 || QuestID > m_QuestList.Count)
+        if (QuestID < 0 || QuestID >= m_QuestList.Count)
             return null;
 
         return m_QuestList[QuestID];

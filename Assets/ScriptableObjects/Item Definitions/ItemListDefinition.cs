@@ -14,7 +14,7 @@ public class ItemListDefinition : ScriptableObject
         if (m_ItemList == null)
             return null;
 
-        if (itemID < 0 || itemID > m_ItemList.Count)
+        if (itemID < 0 || itemID >= m_ItemList.Count)
             return null;
 
         return m_ItemList[itemID];
