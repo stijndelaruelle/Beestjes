@@ -18,7 +18,14 @@ public class CountdownTimerText : MonoBehaviour
 
     private void Update()
     {
-        TimeSpan diff = m_TargetTime - DateTime.Now;
+        DateTime now = GameClock.Instance.GetDateTime();
+        if (now > m_TargetTime)
+        {
+            m_Text.text = "Deadline passed!";
+            return;
+        }
+
+        TimeSpan diff = m_TargetTime - now;
 
         string text = "";
 
@@ -32,7 +39,7 @@ public class CountdownTimerText : MonoBehaviour
             if (hours > 1) { text += "s"; }
 
             if (minutes > 0) { text += ", "; }
-            if (seconds > 0) { text += " & "; }
+            else if (seconds > 0) { text += " & "; }
         }
 
 

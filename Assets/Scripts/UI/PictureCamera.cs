@@ -102,7 +102,7 @@ public class PictureCamera : MonoBehaviour
         List<string> tagList = new List<string>();
         int score = m_World.CalculatePictureScore(tagList, m_Camera.rect);
 
-        m_LastPicture = new Picture(pictureTexture, DateTime.Now, score, tagList);
+        m_LastPicture = new Picture(pictureTexture, GameClock.Instance.GetDateTime(), score, tagList);
         m_TakePicture = false;
         m_PictureSaved = false;
 

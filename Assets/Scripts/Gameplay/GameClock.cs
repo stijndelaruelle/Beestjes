@@ -23,7 +23,6 @@ public class GameClock : Singleton<GameClock>
     private Vector3 m_InitialDebugTime;
 
     private DateTime m_DebugDateTime;
-    private DateTime m_CachedDateTime;
 
     //Mostly used for debugging
     public event BoolDelegate IsCheatingChangedEvent;
@@ -41,16 +40,17 @@ public class GameClock : Singleton<GameClock>
 
     private void Refresh()
     {
-        if (m_IsCheating) { m_CachedDateTime = m_DebugDateTime; }
-        else              { m_CachedDateTime = DateTime.Now; }
-
-        if (DateTimeChangedEvent != null)
-            DateTimeChangedEvent(m_CachedDateTime);
+        if (m_IsCheating)
+        {
+            if (DateTimeChangedEvent != null)
+                DateTimeChangedEvent(m_DebugDateTime);
+        }
     }
 
     public DateTime GetDateTime()
     {
-        return m_CachedDateTime;
+        if (m_IsCheating) { return m_DebugDateTime; }
+        else              { return DateTime.Now; }
     }
 
     public void SetCheating(bool value)

@@ -271,7 +271,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
 
         byte[] bytes = picture.Texture.EncodeToPNG();
 
-        string fileName = string.Format(m_PictureFileName, DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss"));
+        string fileName = string.Format(m_PictureFileName, GameClock.Instance.GetDateTime().ToString("dd-MM-yyyy_HH-mm-ss"));
         fileName = FindUniqueFileName(pictureDirectory, fileName);
 
         string path = pictureDirectory.FullName + Path.DirectorySeparatorChar + fileName;

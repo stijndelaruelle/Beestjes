@@ -54,7 +54,7 @@ public class Picture
         SetTexture(null);
         m_Score = 0;
         m_Tags = new List<string>();
-        m_Timestamp = DateTime.Now;
+        m_Timestamp = GameClock.Instance.GetDateTime();
     }
 
     public Picture(Texture2D texture, DateTime timestamp, int score, List<string> tags)

@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class Quest
 {
+    public delegate void QuestDelegate(Quest quest);
+
     private QuestListDefinition m_QuestListDefinition;
     private QuestDefinition m_QuestDefinition;
     public QuestDefinition QuestDefinition
@@ -26,6 +28,7 @@ public class Quest
         get { return m_SelectedPicture; }
     }
 
+    public event QuestDelegate QuestCompleteEvent;
     public event PictureDelegate QuestSelectedPictureChangedEvent;
 
     public Quest(QuestListDefinition questListDefinition)
@@ -44,21 +47,14 @@ public class Quest
 
     private void UpdateQuest()
     {
-        DateTime timestamp;
-        if (m_SelectedPicture == null)
+        //Determine if the quest ended
+        if (GameClock.Instance.GetDateTime() > m_Deadline)
         {
-            timestamp = GameClock.Instance.GetDateTime();
-        }
-        else
-        {
-            timestamp = m_SelectedPicture.TimeStamp;
+            if (QuestCompleteEvent != null)
+                QuestCompleteEvent(this);
         }
 
-        //Determine when the next Quest deadline ends
-
-        //Determine whether or not that time has been exceeded
-
-        //If so, hand out rewards!
+        //TODO: REWARD HANDING OUT PROCEDURE
 
         //Once rewards are handed out delete this picture from the Quest (users can close the app while being prompted)
     }
