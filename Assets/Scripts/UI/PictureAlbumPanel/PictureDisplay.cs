@@ -14,15 +14,24 @@ public class PictureDisplay : MonoBehaviour
     protected RawImage m_RawImage;
     protected float m_InitialSize;
 
+    private void Awake()
+    {
+
+    }
+
     public void Initialize(Texture2D texture)
     {
-        m_RectTransform = GetComponent<RectTransform>();
-        m_RawImage = GetComponent<RawImage>();
-        m_InitialSize = m_RectTransform.sizeDelta.x;
+        if (m_RectTransform == null)
+        {
+            m_RectTransform = GetComponent<RectTransform>();
+            m_RawImage = GetComponent<RawImage>();
+            m_InitialSize = m_RectTransform.sizeDelta.x;
+        }
 
         if (texture == null)
         {
             m_RawImage.texture = m_DefaultTexture;
+            m_RectTransform.sizeDelta = new Vector2(m_InitialSize, m_InitialSize);
             return;
         }
 

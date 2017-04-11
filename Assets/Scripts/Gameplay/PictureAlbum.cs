@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class Picture
 {
+    public delegate void Texture2DDelegate(Texture2D texture2D);
+
     private string m_TextureFilePath;
     public string TextureFilePath
     {
@@ -32,6 +34,8 @@ public class Picture
         get { return m_Score; }
     }
 
+    //Todo split up in different categorie (animals, plants, objects, etc...) so we can filter even more precicely later on
+    //+ Fixes localisation issue.
     private List<string> m_Tags;
     public List<string> Tags
     {
@@ -42,9 +46,12 @@ public class Picture
     //Favorite
     //Award winner (place, time)
 
+    public event Texture2DDelegate TextureChangedEvent;
+
     public Picture()
     {
-        m_Texture = null;
+
+        SetTexture(null);
         m_Score = 0;
         m_Tags = new List<string>();
         m_Timestamp = DateTime.Now;
@@ -52,28 +59,45 @@ public class Picture
 
     public Picture(Texture2D texture, DateTime timestamp, int score, List<string> tags)
     {
-        m_Texture = texture;
+        m_TextureFilePath = "";
+        SetTexture(texture);
         m_Timestamp = timestamp;
         m_Score = score;
         m_Tags = tags;
     }
 
-    public Picture(Picture picture)
-    {
-        m_TextureFilePath = picture.m_TextureFilePath;
-        m_Texture = picture.m_Texture;
-        m_Timestamp = picture.m_Timestamp;
-        m_Score = picture.m_Score;
-        m_Tags = picture.m_Tags;
-    }
-
     public bool Dispose()
     {
-        return SaveGameManager.Instance.DeleteFile(m_TextureFilePath);
+        bool success = SaveGameManager.Instance.DeleteFile(m_TextureFilePath);
+
+        if (success)
+        {
+            SetTexture(null);
+            m_TextureFilePath = "";
+            m_Timestamp = DateTime.MinValue;
+            m_Score = 0;
+            m_Tags = null;
+        }
+
+        return success;
+    }
+
+    private void SetTexture(Texture2D texture)
+    {
+        if (m_Texture == texture)
+            return;
+
+        m_Texture = texture;
+
+        if (TextureChangedEvent != null)
+            TextureChangedEvent(m_Texture);
     }
 
     public void Serialize(JSONClass rootNode)
     {
+        if (m_TextureFilePath == "" || m_Texture == null)
+            return;
+
         rootNode.Add("texture_path", new JSONData(m_TextureFilePath));
         rootNode.Add("timestamp", m_Timestamp.ToString("dd/MM/yyyy HH:mm:ss"));
         rootNode.Add("score", new JSONData(m_Score));
@@ -93,7 +117,7 @@ public class Picture
     public bool Deserialize(JSONClass rootNode)
     {
         m_TextureFilePath = rootNode["texture_path"].Value;
-        m_Texture = SaveGameManager.Instance.DeserializePicture(m_TextureFilePath);
+        SetTexture(SaveGameManager.Instance.DeserializePicture(m_TextureFilePath));
 
         //Texture did not exist / was invalid
         if (m_Texture == null)

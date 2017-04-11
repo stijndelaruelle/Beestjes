@@ -121,7 +121,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
         if (!success)
             return false;
 
-        success = SerializeCompetition();
+        success = SerializeMagazineManager();
         if (!success)
             return false;
 
@@ -143,7 +143,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
         return Serialize(m_PictureAlbum.Serialize, m_PictureAlbumFileName);
     }
 
-    public bool SerializeCompetition()
+    public bool SerializeMagazineManager()
     {
         return Serialize(m_MagazineManager.Serialize, m_MagazineManagerFileName);
     }
@@ -185,7 +185,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
         if (!success)
             return false;
 
-        success = DeserializeCompetition();
+        success = DeserializeMagazineManager();
         if (!success)
             return false;
 
@@ -207,9 +207,9 @@ public class SaveGameManager : Singleton<SaveGameManager>
         return Deserialize(m_PictureAlbum.Deserialize, null, m_PictureAlbumFileName);
     }
 
-    public bool DeserializeCompetition()
+    public bool DeserializeMagazineManager()
     {
-        return Deserialize(m_MagazineManager.Deserialize, null, m_MagazineManagerFileName);
+        return Deserialize(m_MagazineManager.Deserialize, m_MagazineManager.OnNewUser, m_MagazineManagerFileName);
     }
 
 

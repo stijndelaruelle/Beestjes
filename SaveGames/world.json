@@ -10,16 +10,16 @@
       "is_flipped": false, 
       "animal_slots": [ 
         { 
-          "animal_id": 1, 
-          "end_time": "10/04/2017 07:41:18"
+          "animal_id": -1, 
+          "end_time": "01/01/0001 00:00:00"
           }, 
         { 
-          "animal_id": 0, 
-          "end_time": "10/04/2017 07:44:06"
+          "animal_id": -1, 
+          "end_time": "01/01/0001 00:00:00"
           }, 
         { 
-          "animal_id": 0, 
-          "end_time": "10/04/2017 07:29:23"
+          "animal_id": -1, 
+          "end_time": "01/01/0001 00:00:00"
           }
         ]
       }

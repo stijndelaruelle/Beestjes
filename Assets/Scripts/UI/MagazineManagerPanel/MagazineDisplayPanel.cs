@@ -3,31 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MagazinePicturePanel : MonoBehaviour
+public class MagazineDisplayPanel : MonoBehaviour
 {
-    [SerializeField]
-    private MagazineManager m_MagazineManager;
+    private Magazine m_Magazine;
 
     [SerializeField]
-    private PictureDisplay m_PictureDisplay;
+    private Text m_Title;
 
     [SerializeField]
     private Text m_InfoText;
 
+    [SerializeField]
+    private PictureDisplay m_PictureDisplay;
+
+    public void Initialize(Magazine magazine)
+    {
+        m_Magazine = magazine;
+        Refresh(m_Magazine.Picture);
+    }
+
     private void Start()
     {
-        m_MagazineManager.MagazinePictureChangedEvent += OnMagazinePictureChanged;
+        m_Magazine.MagazinePictureChangedEvent += OnMagazinePictureChanged;
     }
 
     private void OnDestroy()
     {
-        if (m_MagazineManager != null)
-            m_MagazineManager.MagazinePictureChangedEvent -= OnMagazinePictureChanged;
-    }
-
-    private void OnEnable()
-    {
-        Refresh(m_MagazineManager.Picture);
+        if (m_Magazine != null)
+            m_Magazine.MagazinePictureChangedEvent -= OnMagazinePictureChanged;
     }
 
     private void Refresh(Picture picture)
@@ -43,4 +46,5 @@ public class MagazinePicturePanel : MonoBehaviour
     {
         Refresh(picture);
     }
+
 }

@@ -1,14 +1,19 @@
 { 
   "picture_album": [ 
     { 
-      "texture_path": "E:\\Unity Projects\\Beestjes\\Beestjes\\SaveGames\\Beestjes\\picture_11-04-2017_15-33-42.png", 
-      "timestamp": "11/04/2017 15:33:41", 
-      "score": 377, 
+      "texture_path": "E:\\Unity Projects\\Beestjes\\Beestjes\\SaveGames\\Beestjes\\picture_11-04-2017_17-17-02.png", 
+      "timestamp": "11/04/2017 17:17:01", 
+      "score": 79, 
       "tags": [ 
-        "Bush_2_FullSize(Clone)", 
-        "Animal_Konijn", 
-        "Animal_Fred", 
-        "Animal_Eekhoorn"
+        "Bush_2_FullSize(Clone)"
+        ]
+      }, 
+    { 
+      "texture_path": "E:\\Unity Projects\\Beestjes\\Beestjes\\SaveGames\\Beestjes\\picture_11-04-2017_17-17-09.png", 
+      "timestamp": "11/04/2017 17:17:08", 
+      "score": 77, 
+      "tags": [ 
+        "Bush_2_FullSize(Clone)"
         ]
       }
     ]
