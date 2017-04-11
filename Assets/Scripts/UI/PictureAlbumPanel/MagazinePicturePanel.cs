@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CompetitionPicturePanel : MonoBehaviour
+public class MagazinePicturePanel : MonoBehaviour
 {
     [SerializeField]
-    private Competition m_Competition;
+    private MagazineManager m_MagazineManager;
 
     [SerializeField]
     private PictureDisplay m_PictureDisplay;
@@ -16,18 +16,18 @@ public class CompetitionPicturePanel : MonoBehaviour
 
     private void Start()
     {
-        m_Competition.CompetitionPictureChangedEvent += OnCompetitionPictureChanged;
+        m_MagazineManager.MagazinePictureChangedEvent += OnMagazinePictureChanged;
     }
 
     private void OnDestroy()
     {
-        if (m_Competition != null)
-            m_Competition.CompetitionPictureChangedEvent -= OnCompetitionPictureChanged;
+        if (m_MagazineManager != null)
+            m_MagazineManager.MagazinePictureChangedEvent -= OnMagazinePictureChanged;
     }
 
     private void OnEnable()
     {
-        Refresh(m_Competition.Picture);
+        Refresh(m_MagazineManager.Picture);
     }
 
     private void Refresh(Picture picture)
@@ -39,7 +39,7 @@ public class CompetitionPicturePanel : MonoBehaviour
     }
 
     //Events
-    private void OnCompetitionPictureChanged(Picture picture)
+    private void OnMagazinePictureChanged(Picture picture)
     {
         Refresh(picture);
     }

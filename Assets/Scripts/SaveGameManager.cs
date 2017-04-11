@@ -33,7 +33,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
     private string m_PictureAlbumFileName;
 
     [SerializeField]
-    private string m_CompetitionFileName;
+    private string m_MagazineManagerFileName;
 
     [Header("Pictures")]
     [Space(5)]
@@ -56,7 +56,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
     private PictureAlbum m_PictureAlbum;
 
     [SerializeField]
-    private Competition m_Competition;
+    private MagazineManager m_MagazineManager;
 
     private void Start()
     {
@@ -145,7 +145,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
 
     public bool SerializeCompetition()
     {
-        return Serialize(m_Competition.Serialize, m_CompetitionFileName);
+        return Serialize(m_MagazineManager.Serialize, m_MagazineManagerFileName);
     }
 
     private bool Serialize(JSONClassDelegate serializeFunction, string fileName)
@@ -209,7 +209,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
 
     public bool DeserializeCompetition()
     {
-        return Deserialize(m_Competition.Deserialize, null, m_CompetitionFileName);
+        return Deserialize(m_MagazineManager.Deserialize, null, m_MagazineManagerFileName);
     }
 
 

@@ -12,14 +12,14 @@ public class PictureDisplayPanel : MonoBehaviour
         get { return m_Picture; }
     }
 
-    private Competition m_Competition;
+    private MagazineManager m_MagazineManager;
 
     public event PictureDelegate PictureDisplayRemoveEvent;
 
-    public void Initialize(Picture picture, Competition competition)
+    public void Initialize(Picture picture, MagazineManager magazineManager)
     {
         m_Picture = picture;
-        m_Competition = competition;
+        m_MagazineManager = magazineManager;
         m_PictureDisplay.Initialize(m_Picture.Texture);
     }
 
@@ -28,9 +28,9 @@ public class PictureDisplayPanel : MonoBehaviour
         SharePlugin.ShareImage("Share picture...", m_Picture.TextureFilePath, "png");
     }
 
-    public void EnterCompetition()
+    public void SelectForMagazine()
     {
-        m_Competition.SetPicture(m_Picture);
+        m_MagazineManager.SetPicture(m_Picture);
     }
 
     public void Delete()

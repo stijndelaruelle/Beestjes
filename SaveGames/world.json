@@ -11,15 +11,15 @@
       "animal_slots": [ 
         { 
           "animal_id": 1, 
-          "end_time": "10/04/2017 07:41:24"
+          "end_time": "10/04/2017 07:41:18"
           }, 
         { 
-          "animal_id": 1, 
-          "end_time": "10/04/2017 07:42:30"
+          "animal_id": 0, 
+          "end_time": "10/04/2017 07:44:06"
           }, 
         { 
-          "animal_id": 1, 
-          "end_time": "10/04/2017 07:41:17"
+          "animal_id": 0, 
+          "end_time": "10/04/2017 07:29:23"
           }
         ]
       }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LastPictureEnterCompetitionButton : MonoBehaviour
+public class LastPictureSelectForMagazineButton : MonoBehaviour
 {
     [SerializeField]
     private PictureCamera m_PictureCamera;
@@ -11,7 +11,7 @@ public class LastPictureEnterCompetitionButton : MonoBehaviour
     private LastPictureTakenPanel m_PictureTakenPanel;
 
     [SerializeField]
-    private Competition m_Competition;
+    private MagazineManager m_MagazineManager;
 
     private void OnDestroy()
     {
@@ -19,7 +19,7 @@ public class LastPictureEnterCompetitionButton : MonoBehaviour
             m_PictureCamera.PictureSavedEvent -= OnPictureSaved;
     }
 
-    public void EnterCompetition()
+    public void SelectForMagazine()
     {
         //Save
         m_PictureCamera.PictureSavedEvent += OnPictureSaved;
@@ -28,8 +28,7 @@ public class LastPictureEnterCompetitionButton : MonoBehaviour
 
     private void OnPictureSaved(Picture picture)
     {
-        //Enter competition
-        m_Competition.SetPicture(picture);
+        m_MagazineManager.SetPicture(picture);
 
         //Hide window
         m_PictureTakenPanel.Hide();

@@ -8,7 +8,7 @@ public class PictureAlbumGridPanel : MonoBehaviour
     private PictureAlbum m_PictureAlbum;
 
     [SerializeField]
-    private Competition m_Competition;
+    private MagazineManager m_MagazineManager;
 
     [SerializeField]
     private PictureDisplayPanel m_PictureDisplayPanelPrefab;
@@ -47,7 +47,7 @@ public class PictureAlbumGridPanel : MonoBehaviour
             }
             else
             {
-                m_PictureDisplayPanels[i].Initialize(pictures[i], m_Competition);
+                m_PictureDisplayPanels[i].Initialize(pictures[i], m_MagazineManager);
             }
         }
     }
@@ -75,7 +75,7 @@ public class PictureAlbumGridPanel : MonoBehaviour
     {
         PictureDisplayPanel newPanel = GameObject.Instantiate<PictureDisplayPanel>(m_PictureDisplayPanelPrefab, m_Content);
         newPanel.PictureDisplayRemoveEvent += OnPictureDisplayRemove;
-        newPanel.Initialize(picture, m_Competition);
+        newPanel.Initialize(picture, m_MagazineManager);
 
         m_PictureDisplayPanels.Add(newPanel);
     }

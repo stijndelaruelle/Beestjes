@@ -4,7 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Competition : MonoBehaviour
+public class Magazine
+{
+
+}
+
+public class MagazineManager : MonoBehaviour
 {
     private Picture m_Picture;
     public Picture Picture
@@ -12,11 +17,11 @@ public class Competition : MonoBehaviour
         get { return m_Picture; }
     }
 
-    public event PictureDelegate CompetitionPictureChangedEvent;
+    public event PictureDelegate MagazinePictureChangedEvent;
 
     //Rewards
 
-    private void UpdateCompetition()
+    private void UpdateMagazine()
     {
         DateTime timestamp;
         if (m_Picture == null)
@@ -28,21 +33,21 @@ public class Competition : MonoBehaviour
             timestamp = m_Picture.TimeStamp;
         }
 
-        //Determine when the next competition ends
+        //Determine when the next magazine deadline ends
 
         //Determine whether or not that time has been exceeded
 
         //If so, hand out rewards!
 
-        //Once rewards are handed out delete this picture from the competition (users can close the app while being prompted)
+        //Once rewards are handed out delete this picture from the magazine (users can close the app while being prompted)
     }
 
     public void SetPicture(Picture picture)
     {
         m_Picture = picture;
 
-        if (CompetitionPictureChangedEvent != null)
-            CompetitionPictureChangedEvent(picture);
+        if (MagazinePictureChangedEvent != null)
+            MagazinePictureChangedEvent(picture);
 
         SaveGameManager.Instance.SerializeCompetition();
     }
@@ -65,6 +70,6 @@ public class Competition : MonoBehaviour
         if (success)
             m_Picture = picture;
 
-        UpdateCompetition();
+        UpdateMagazine();
     }
 }
