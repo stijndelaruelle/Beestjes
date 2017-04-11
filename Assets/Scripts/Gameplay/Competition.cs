@@ -1,4 +1,5 @@
 ﻿using SimpleJSON;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,28 @@ public class Competition : MonoBehaviour
     public event PictureDelegate CompetitionPictureChangedEvent;
 
     //Rewards
+
+    private void UpdateCompetition()
+    {
+        DateTime timestamp;
+        if (m_Picture == null)
+        {
+            timestamp = GameClock.Instance.GetDateTime();
+        }
+        else
+        {
+            timestamp = m_Picture.TimeStamp;
+        }
+
+        //Determine when the next competition ends
+
+        //Determine whether or not that time has been exceeded
+
+        //If so, hand out rewards!
+
+        //Once rewards are handed out delete this picture from the competition (users can close the app while being prompted)
+    }
+
     public void SetPicture(Picture picture)
     {
         m_Picture = picture;
@@ -41,5 +64,7 @@ public class Competition : MonoBehaviour
 
         if (success)
             m_Picture = picture;
+
+        UpdateCompetition();
     }
 }
