@@ -35,7 +35,6 @@ public class GameClockDebugInputField : MonoBehaviour
         if (gameClock != null)
         {
             gameClock.DateTimeChangedEvent += OnDateTimeChanged;
-            Refresh(gameClock.GetDateTime());
         }
     }
 

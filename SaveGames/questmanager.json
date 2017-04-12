@@ -1,7 +1,7 @@
 { 
   "Quests": [ 
     { 
-      "item_id": 0, 
+      "quest_id": 0, 
       "deadline": "12/04/2017 07:00:00"
       }
     ]

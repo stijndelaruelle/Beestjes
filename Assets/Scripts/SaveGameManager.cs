@@ -58,6 +58,7 @@ public class SaveGameManager : Singleton<SaveGameManager>
     [SerializeField]
     private QuestManager m_QuestManager;
 
+    //Executes after all the other objects have been started
     private void Start()
     {
         DetermineRootPath();

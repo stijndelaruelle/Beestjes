@@ -23,7 +23,6 @@ public class Sky : MonoBehaviour
     private void Start()
     {
         GameClock.Instance.DateTimeChangedEvent += OnDateTimeChanged;
-        OnDateTimeChanged(GameClock.Instance.GetDateTime());
     }
 
     private void OnDestroy()

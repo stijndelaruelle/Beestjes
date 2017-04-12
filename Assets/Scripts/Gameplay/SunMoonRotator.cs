@@ -11,7 +11,6 @@ public class SunMoonRotator : MonoBehaviour
     private void Start()
     {
         GameClock.Instance.DateTimeChangedEvent += OnDateTimeChanged;
-        OnDateTimeChanged(GameClock.Instance.GetDateTime());
     }
 
     private void OnDestroy()

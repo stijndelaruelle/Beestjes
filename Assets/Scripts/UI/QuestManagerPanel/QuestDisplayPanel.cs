@@ -20,12 +20,6 @@ public class QuestDisplayPanel : MonoBehaviour
     [SerializeField]
     private CountdownTimerText m_CountdownTimerText;
 
-    public void Initialize(Quest Quest)
-    {
-        m_Quest = Quest;
-        Refresh(m_Quest.SelectedPicture);
-    }
-
     private void Start()
     {
         m_Quest.QuestSelectedPictureChangedEvent += OnQuestSelectedPictureChanged;
@@ -37,10 +31,16 @@ public class QuestDisplayPanel : MonoBehaviour
             m_Quest.QuestSelectedPictureChangedEvent -= OnQuestSelectedPictureChanged;
     }
 
+    public void Initialize(Quest Quest)
+    {
+        m_Quest = Quest;
+        Refresh(m_Quest.SelectedPicture);
+    }
+
     private void Refresh(Picture picture)
     {
         //Title
-        m_Title.text = m_Quest.QuestDefinition.Title;
+        m_Title.text = "Quest: " + m_Quest.QuestDefinition.Title;
 
         //Picture
         if (picture == null)

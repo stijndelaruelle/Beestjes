@@ -28,23 +28,18 @@ public class GameClock : Singleton<GameClock>
     public event BoolDelegate IsCheatingChangedEvent;
     public event DateTimeDelegate DateTimeChangedEvent;
 
-    protected override void Awake()
+    protected void Start()
     {
-        base.Awake();
-
         m_DebugDateTime = new DateTime((int)m_InitialDebugDate.z, (int)m_InitialDebugDate.y, (int)m_InitialDebugDate.x,
                                        (int)m_InitialDebugTime.x, (int)m_InitialDebugTime.y, (int)m_InitialDebugTime.z);
 
-        Refresh();
+        SendUpdateEvent();
     }
 
-    private void Refresh()
+    private void SendUpdateEvent()
     {
-        if (m_IsCheating)
-        {
-            if (DateTimeChangedEvent != null)
-                DateTimeChangedEvent(m_DebugDateTime);
-        }
+        if (DateTimeChangedEvent != null)
+            DateTimeChangedEvent(m_DebugDateTime);
     }
 
     public DateTime GetDateTime()
@@ -60,43 +55,43 @@ public class GameClock : Singleton<GameClock>
         if (IsCheatingChangedEvent != null)
             IsCheatingChangedEvent(m_IsCheating);
 
-        Refresh();
+        SendUpdateEvent();
     }
 
 
     public void AddDays(int days)
     {
         m_DebugDateTime = m_DebugDateTime.AddDays(days);
-        Refresh();
+        SendUpdateEvent();
     }
 
     public void AddMonths(int months)
     {
         m_DebugDateTime = m_DebugDateTime.AddMonths(months);
-        Refresh();
+        SendUpdateEvent();
     }
 
     public void AddYears(int years)
     {
         m_DebugDateTime = m_DebugDateTime.AddYears(years);
-        Refresh();
+        SendUpdateEvent();
     }
 
     public void AddHours(int hours)
     {
         m_DebugDateTime = m_DebugDateTime.AddHours(hours);
-        Refresh();
+        SendUpdateEvent();
     }
 
     public void AddMinutes(int minutes)
     {
         m_DebugDateTime = m_DebugDateTime.AddMinutes(minutes);
-        Refresh();
+        SendUpdateEvent();
     }
 
     public void AddSeconds(int seconds)
     {
         m_DebugDateTime = m_DebugDateTime.AddSeconds(seconds);
-        Refresh();
+        SendUpdateEvent();
     }
 }

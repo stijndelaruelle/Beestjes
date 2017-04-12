@@ -50,7 +50,6 @@ public class Picture
 
     public Picture()
     {
-
         SetTexture(null);
         m_Score = 0;
         m_Tags = new List<string>();

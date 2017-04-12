@@ -45,18 +45,14 @@ public class Quest
         m_Deadline = deadline;
     }
 
-    private void UpdateQuest()
+    public void CheckIfComplete(DateTime dateTime)
     {
         //Determine if the quest ended
-        if (GameClock.Instance.GetDateTime() > m_Deadline)
+        if (dateTime >= m_Deadline)
         {
             if (QuestCompleteEvent != null)
                 QuestCompleteEvent(this);
         }
-
-        //TODO: REWARD HANDING OUT PROCEDURE
-
-        //Once rewards are handed out delete this picture from the Quest (users can close the app while being prompted)
     }
 
     public void SetPicture(Picture picture)
@@ -80,7 +76,7 @@ public class Quest
 
         //Quest ID
         int id = m_QuestListDefinition.GetID(m_QuestDefinition);
-        questNode.Add("item_id", new JSONData(id));
+        questNode.Add("quest_id", new JSONData(id));
 
         //Deadline
         questNode.Add("deadline", m_Deadline.ToString("dd/MM/yyyy HH:mm:ss"));
@@ -128,8 +124,6 @@ public class Quest
                 m_SelectedPicture = picture;
             }
         }
-
-        UpdateQuest();
     }
 
     //Events
@@ -142,7 +136,7 @@ public class Quest
 
 public class QuestManager : MonoBehaviour
 {
-    public delegate void QuestDelegate(Quest Quest);
+    public delegate void QuestDelegate(Quest quest);
 
     [SerializeField]
     private QuestListDefinition m_QuestListDefinition;
@@ -153,18 +147,29 @@ public class QuestManager : MonoBehaviour
         get { return m_Quests; }
     }
 
-    public event QuestDelegate QuestChangedEvent;
+    public event QuestDelegate QuestCompleteEvent;
 
     private void Awake()
     {
         m_Quests = new List<Quest>();
     }
 
+    private void Start()
+    {
+        GameClock.Instance.DateTimeChangedEvent += OnDateTimeChanged;
+    }
+
     private void OnDestroy()
     {
-        foreach (Quest Quest in m_Quests)
+        GameClock gameClock = GameClock.Instance;
+
+        if (gameClock != null)
+            gameClock.DateTimeChangedEvent -= OnDateTimeChanged;
+
+        foreach (Quest quest in m_Quests)
         {
-            Quest.QuestSelectedPictureChangedEvent -= OnQuestPictureChangedEvent;
+            quest.QuestCompleteEvent -= OnQuestCompleted;
+            quest.QuestSelectedPictureChangedEvent -= OnQuestPictureChanged;
         }
 
         m_Quests.Clear();
@@ -178,30 +183,37 @@ public class QuestManager : MonoBehaviour
         m_Quests[0].SetPicture(picture);
     }
 
-    private void AddQuest(Quest Quest)
+    private void AddQuest(Quest quest)
     {
         if (m_Quests == null)
             return;
 
-        Quest.QuestSelectedPictureChangedEvent += OnQuestPictureChangedEvent;
-        m_Quests.Add(Quest);
+        quest.QuestSelectedPictureChangedEvent += OnQuestPictureChanged;
+        m_Quests.Add(quest);
 
         SaveGameManager.Instance.SerializeQuestManager();
     }
 
+    public void UpdateQuests(DateTime dateTime)
+    {
+        foreach (Quest quest in m_Quests)
+        {
+            quest.CheckIfComplete(dateTime);
+        }
+    }
 
     public void Serialize(JSONNode rootNode)
     {
-        JSONArray QuestArrayNode = new JSONArray();
-        foreach (Quest Quest in m_Quests)
+        JSONArray questArrayNode = new JSONArray();
+        foreach (Quest quest in m_Quests)
         {
-            JSONClass QuestNode = new JSONClass();
-            Quest.Serialize(QuestNode);
+            JSONClass questNode = new JSONClass();
+            quest.Serialize(questNode);
 
-            QuestArrayNode.Add(QuestNode);
+            questArrayNode.Add(questNode);
         }
 
-        rootNode.Add("Quests", QuestArrayNode);
+        rootNode.Add("Quests", questArrayNode);
     }
 
     public void Deserialize(JSONNode rootNode)
@@ -211,25 +223,44 @@ public class QuestManager : MonoBehaviour
         {
             for (int i = 0; i < pictureArrayNode.Count; ++i)
             {
-                JSONClass QuestNode = pictureArrayNode[i].AsObject;
+                JSONClass questNode = pictureArrayNode[i].AsObject;
 
-                Quest Quest = new Quest(m_QuestListDefinition);
-                Quest.Deserialize(QuestNode);
-                AddQuest(Quest);
+                Quest quest = new Quest(m_QuestListDefinition);
+                quest.QuestCompleteEvent += OnQuestCompleted;
+
+                quest.Deserialize(questNode);
+                AddQuest(quest);
             }
         }
+
+        UpdateQuests(GameClock.Instance.GetDateTime());
     }
 
     //Events
-    private void OnQuestPictureChangedEvent(Picture picture)
+    private void OnQuestCompleted(Quest quest)
+    {
+        //Passing trough
+        if (QuestCompleteEvent != null)
+            QuestCompleteEvent(quest);
+    }
+
+    private void OnQuestPictureChanged(Picture picture)
     {
         SaveGameManager.Instance.SerializeQuestManager();
+    }
+
+    private void OnDateTimeChanged(DateTime dateTime)
+    {
+        UpdateQuests(dateTime);
     }
 
     public void OnNewUser()
     {
         //TEMP
         QuestDefinition firstQuestDefinition = m_QuestListDefinition.GetQuestDefinition(0);
-        AddQuest(new Quest(m_QuestListDefinition, firstQuestDefinition, firstQuestDefinition.CalculateDeadline()));
+        Quest quest = new Quest(m_QuestListDefinition, firstQuestDefinition, firstQuestDefinition.CalculateDeadline());
+        quest.QuestCompleteEvent += OnQuestCompleted;
+
+        AddQuest(quest);
     }
 }

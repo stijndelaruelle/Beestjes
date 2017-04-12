@@ -27,7 +27,7 @@ public class GameClockDebugPanel : MonoBehaviour
     {
         if (value)
         {
-            m_RectTransform.DOAnchorPosY(0.0f, 1).SetEase(Ease.OutBounce);
+            m_RectTransform.DOAnchorPosY(0.0f, 1.0f).SetEase(Ease.OutBounce);
         }
         else
         {
