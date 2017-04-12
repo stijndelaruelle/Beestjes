@@ -27,7 +27,6 @@ public class WorldObjectBuilderUI : MonoBehaviour, IPointerDownHandler, IDragHan
         m_SelectedItem = null;
 
         SaveGameManager.Instance.SerializeWorld();
-        SaveGameManager.Instance.SerializeInventory();
     }
 
     public void OnDrag(PointerEventData eventData)

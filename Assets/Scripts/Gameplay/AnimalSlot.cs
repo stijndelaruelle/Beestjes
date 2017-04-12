@@ -26,6 +26,16 @@ public class AnimalSlot : MonoBehaviour
     {
         SetCurrentAnimal(null);
         m_EndTime = DateTime.MinValue;
+
+        GameClock.Instance.DateTimeChangedEvent += OnDateTimeChanged;
+    }
+
+    private void OnDestroy()
+    {
+        GameClock gameClock = GameClock.Instance;
+
+        if (gameClock != null)
+            gameClock.DateTimeChangedEvent -= OnDateTimeChanged;
     }
 
     public void Tick(DateTime dateTime, PartOfDay partOfDay, float percentageOfPODPassed)
@@ -171,7 +181,11 @@ public class AnimalSlot : MonoBehaviour
                 throw new System.Exception("A save game \"animal slot\" has an invalid \"end_time\" node! Expected DateTime. Source: " + placeTimeNode.ToString() + " Exception: " + e.Message);
             }
         }
+    }
 
+    //Events
+    private void OnDateTimeChanged(DateTime dateTime)
+    {
         UpdateAnimalPrecense();
     }
 }

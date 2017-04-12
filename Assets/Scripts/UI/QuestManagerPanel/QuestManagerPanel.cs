@@ -22,20 +22,28 @@ public class QuestManagerPanel : MonoBehaviour
 
     private void OnEnable()
     {
-        List<Quest> Quests = m_QuestManager.Quests;
+        List<Quest> quests = m_QuestManager.Quests;
 
-        if (Quests == null)
+        if (quests == null)
             return;
 
-        for (int i = 0; i < Quests.Count; ++i)
+        for (int i = 0; i < quests.Count; ++i)
         {
             if (i >= m_QuestPanels.Count)
             {
-                AddQuestPanel(Quests[i]);
+                AddQuestPanel(quests[i]);
             }
             else
             {
-                m_QuestPanels[i].Initialize(Quests[i]);
+                m_QuestPanels[i].Initialize(quests[i]);
+            }
+        }
+
+        if (m_QuestPanels.Count > quests.Count)
+        {
+            for (int i = quests.Count; i < m_QuestPanels.Count; ++i)
+            {
+                RemoveQuestPanel(i);
             }
         }
     }
@@ -56,5 +64,14 @@ public class QuestManagerPanel : MonoBehaviour
         newPanel.Initialize(Quest);
 
         m_QuestPanels.Add(newPanel);
+    }
+
+    private void RemoveQuestPanel(int id)
+    {
+        if (id < 0 || id >= m_QuestPanels.Count)
+            return;
+
+        GameObject.Destroy(m_QuestPanels[id].gameObject);
+        m_QuestPanels.RemoveAt(id);
     }
 }

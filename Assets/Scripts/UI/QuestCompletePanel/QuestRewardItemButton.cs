@@ -11,14 +11,17 @@ public class QuestRewardItemButton : MonoBehaviour
     [SerializeField]
     private Text m_Amount;
 
+    private QuestRewardPanel m_QuestRewardPanel;
+
     private InventoryItem m_InventoryItem;
     public InventoryItem InventoryItem
     {
         get { return m_InventoryItem; }
     }
 
-    public void Initialize(InventoryItem inventoryItem)
+    public void Initialize(QuestRewardPanel questRewardPanel, InventoryItem inventoryItem)
     {
+        m_QuestRewardPanel = questRewardPanel;
         m_InventoryItem = inventoryItem;
         UpdateVisuals();
     }
@@ -31,8 +34,8 @@ public class QuestRewardItemButton : MonoBehaviour
         m_Amount.enabled = (m_InventoryItem.Amount > 1);
     }
 
-    public void SelectItem()
+    public void ClaimReward()
     {
-
+        m_QuestRewardPanel.ClaimReward(m_InventoryItem);
     }
 }

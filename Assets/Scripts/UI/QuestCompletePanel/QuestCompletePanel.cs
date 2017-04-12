@@ -24,13 +24,17 @@ public class QuestCompletePanel : MonoBehaviour
     public void Start()
     {
         m_QuestManager.QuestCompleteEvent += OnQuestComplete;
+        m_QuestManager.QuestRemovedEvent += OnQuestRemoved;
         Hide();
     }
 
     private void OnDestroy()
     {
         if (m_QuestManager != null)
+        {
             m_QuestManager.QuestCompleteEvent -= OnQuestComplete;
+            m_QuestManager.QuestRemovedEvent -= OnQuestRemoved;
+        }
     }
 
     private void Refresh()
@@ -48,13 +52,6 @@ public class QuestCompletePanel : MonoBehaviour
         m_QuestRewardPanel.Initialize(m_Quest);
     }
 
-    private void OnQuestComplete(Quest quest)
-    {
-        m_Quest = quest;
-        Refresh();
-        Show();
-    }
-
     public void Show()
     {
         m_Visuals.SetActive(true);
@@ -63,5 +60,21 @@ public class QuestCompletePanel : MonoBehaviour
     public void Hide()
     {
         m_Visuals.SetActive(false);
+    }
+
+    //Events
+    private void OnQuestComplete(Quest quest)
+    {
+        m_Quest = quest;
+        Refresh();
+        Show();
+    }
+
+    private void OnQuestRemoved(Quest quest)
+    {
+        if (quest == m_Quest)
+        {
+            Hide();
+        }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent (typeof(RectTransform))]
+[RequireComponent(typeof(RectTransform))]
 public class QuestRewardPanel : MonoBehaviour
 {
     [SerializeField]
@@ -39,16 +39,21 @@ public class QuestRewardPanel : MonoBehaviour
             }
             else
             {
-                m_QuestRewardItemButtons[i].Initialize(inventoryItem);
+                m_QuestRewardItemButtons[i].Initialize(this, inventoryItem);
             }
         }
     }
 
-    private void AddQuestRewardButton(InventoryItem InventoryItem)
+    private void AddQuestRewardButton(InventoryItem inventoryItem)
     {
         QuestRewardItemButton newPanel = GameObject.Instantiate<QuestRewardItemButton>(m_QuestRewardItemButtonPrefab, m_RectTransform);
-        newPanel.Initialize(InventoryItem);
+        newPanel.Initialize(this, inventoryItem);
 
         m_QuestRewardItemButtons.Add(newPanel);
+    }
+
+    public void ClaimReward(InventoryItem inventoryItem)
+    {
+        m_Quest.ClaimReward(inventoryItem);
     }
 }

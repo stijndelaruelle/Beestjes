@@ -28,21 +28,28 @@ public class Quest
         get { return m_SelectedPicture; }
     }
 
+    private Inventory m_Inventory;
+
     public event QuestDelegate QuestCompleteEvent;
+    public event QuestDelegate QuestRemovedEvent;
     public event PictureDelegate QuestSelectedPictureChangedEvent;
 
-    public Quest(QuestListDefinition questListDefinition)
+    public Quest(QuestListDefinition questListDefinition, Inventory inventory)
     {
         m_QuestListDefinition = questListDefinition;
         m_QuestDefinition = null;
         m_Deadline = DateTime.MinValue;
+
+        m_Inventory = inventory;
     }
 
-    public Quest(QuestListDefinition questListDefinition, QuestDefinition questDefinition, DateTime deadline)
+    public Quest(QuestListDefinition questListDefinition, QuestDefinition questDefinition, DateTime deadline, Inventory inventory)
     {
         m_QuestListDefinition = questListDefinition;
         m_QuestDefinition = questDefinition;
         m_Deadline = deadline;
+
+        m_Inventory = inventory;
     }
 
     public void CheckIfComplete(DateTime dateTime)
@@ -50,9 +57,25 @@ public class Quest
         //Determine if the quest ended
         if (dateTime >= m_Deadline)
         {
-            if (QuestCompleteEvent != null)
-                QuestCompleteEvent(this);
+            if (m_SelectedPicture != null)
+            {
+                if (QuestCompleteEvent != null)
+                    QuestCompleteEvent(this);
+            }
+            else
+            {
+                if (QuestRemovedEvent != null)
+                    QuestRemovedEvent(this);
+            }
         }
+    }
+
+    public void ClaimReward(InventoryItem inventoryItem)
+    {
+        m_Inventory.AddItem(inventoryItem);
+
+        if (QuestRemovedEvent != null)
+            QuestRemovedEvent(this);
     }
 
     public void SetPicture(Picture picture)
@@ -139,6 +162,9 @@ public class QuestManager : MonoBehaviour
     public delegate void QuestDelegate(Quest quest);
 
     [SerializeField]
+    private Inventory m_Inventory;
+
+    [SerializeField]
     private QuestListDefinition m_QuestListDefinition;
 
     private List<Quest> m_Quests;
@@ -147,6 +173,8 @@ public class QuestManager : MonoBehaviour
         get { return m_Quests; }
     }
 
+    public event QuestDelegate QuestAddedEvent;
+    public event QuestDelegate QuestRemovedEvent;
     public event QuestDelegate QuestCompleteEvent;
 
     private void Awake()
@@ -169,6 +197,7 @@ public class QuestManager : MonoBehaviour
         foreach (Quest quest in m_Quests)
         {
             quest.QuestCompleteEvent -= OnQuestCompleted;
+            quest.QuestRemovedEvent -= OnQuestRewardClaimed;
             quest.QuestSelectedPictureChangedEvent -= OnQuestPictureChanged;
         }
 
@@ -183,7 +212,7 @@ public class QuestManager : MonoBehaviour
         m_Quests[0].SetPicture(picture);
     }
 
-    private void AddQuest(Quest quest)
+    private void AddQuest(Quest quest, bool serialize = true)
     {
         if (m_Quests == null)
             return;
@@ -191,14 +220,36 @@ public class QuestManager : MonoBehaviour
         quest.QuestSelectedPictureChangedEvent += OnQuestPictureChanged;
         m_Quests.Add(quest);
 
-        SaveGameManager.Instance.SerializeQuestManager();
+        if (QuestAddedEvent != null)
+            QuestAddedEvent(quest);
+
+        if (serialize)
+            SaveGameManager.Instance.SerializeQuestManager();
+    }
+
+    private void RemoveQuest(Quest quest, bool serialize = true)
+    {
+        if (m_Quests == null)
+            return;
+
+        if (m_Quests.Contains(quest) == false)
+            return;
+
+        m_Quests.Remove(quest);
+
+        if (QuestRemovedEvent != null)
+            QuestRemovedEvent(quest);
+
+        if (serialize)
+            SaveGameManager.Instance.SerializeQuestManager();
     }
 
     public void UpdateQuests(DateTime dateTime)
     {
-        foreach (Quest quest in m_Quests)
+        //Loop backwards as quests can be deleted during the update (no picture)
+        for (int i = m_Quests.Count -1; i >= 0; --i)
         {
-            quest.CheckIfComplete(dateTime);
+            m_Quests[i].CheckIfComplete(dateTime);
         }
     }
 
@@ -225,15 +276,14 @@ public class QuestManager : MonoBehaviour
             {
                 JSONClass questNode = pictureArrayNode[i].AsObject;
 
-                Quest quest = new Quest(m_QuestListDefinition);
+                Quest quest = new Quest(m_QuestListDefinition, m_Inventory);
                 quest.QuestCompleteEvent += OnQuestCompleted;
+                quest.QuestRemovedEvent += OnQuestRewardClaimed;
 
                 quest.Deserialize(questNode);
-                AddQuest(quest);
+                AddQuest(quest, false);
             }
         }
-
-        UpdateQuests(GameClock.Instance.GetDateTime());
     }
 
     //Events
@@ -242,6 +292,19 @@ public class QuestManager : MonoBehaviour
         //Passing trough
         if (QuestCompleteEvent != null)
             QuestCompleteEvent(quest);
+    }
+
+    private void OnQuestRewardClaimed(Quest quest)
+    {
+        RemoveQuest(quest);
+
+        //TEMP, START A NEW QUEST
+        QuestDefinition firstQuestDefinition = m_QuestListDefinition.GetQuestDefinition(1);
+        quest = new Quest(m_QuestListDefinition, firstQuestDefinition, firstQuestDefinition.CalculateDeadline(), m_Inventory);
+        quest.QuestCompleteEvent += OnQuestCompleted;
+        quest.QuestRemovedEvent += OnQuestRewardClaimed;
+
+        AddQuest(quest);
     }
 
     private void OnQuestPictureChanged(Picture picture)
@@ -258,8 +321,9 @@ public class QuestManager : MonoBehaviour
     {
         //TEMP
         QuestDefinition firstQuestDefinition = m_QuestListDefinition.GetQuestDefinition(0);
-        Quest quest = new Quest(m_QuestListDefinition, firstQuestDefinition, firstQuestDefinition.CalculateDeadline());
+        Quest quest = new Quest(m_QuestListDefinition, firstQuestDefinition, firstQuestDefinition.CalculateDeadline(), m_Inventory);
         quest.QuestCompleteEvent += OnQuestCompleted;
+        quest.QuestRemovedEvent += OnQuestRewardClaimed;
 
         AddQuest(quest);
     }

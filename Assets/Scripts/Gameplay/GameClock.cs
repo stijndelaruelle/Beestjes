@@ -28,11 +28,16 @@ public class GameClock : Singleton<GameClock>
     public event BoolDelegate IsCheatingChangedEvent;
     public event DateTimeDelegate DateTimeChangedEvent;
 
+    protected override void Awake()
+    {
+        base.Awake();
+
+        m_DebugDateTime = new DateTime((int)m_InitialDebugDate.z, (int)m_InitialDebugDate.y, (int)m_InitialDebugDate.x,
+                               (int)m_InitialDebugTime.x, (int)m_InitialDebugTime.y, (int)m_InitialDebugTime.z);
+    }
+
     protected void Start()
     {
-        m_DebugDateTime = new DateTime((int)m_InitialDebugDate.z, (int)m_InitialDebugDate.y, (int)m_InitialDebugDate.x,
-                                       (int)m_InitialDebugTime.x, (int)m_InitialDebugTime.y, (int)m_InitialDebugTime.z);
-
         SendUpdateEvent();
     }
 

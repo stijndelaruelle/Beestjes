@@ -119,13 +119,13 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    private void AddItem(ItemDefinition itemDefinition, int amount)
+    public void AddItem(ItemDefinition itemDefinition, int amount, bool serialize = true)
     {
         InventoryItem newItem = new InventoryItem(m_ItemList, itemDefinition, amount);
-        AddItem(newItem);
+        AddItem(newItem, serialize);
     }
 
-    private void AddItem(InventoryItem inventoryItem)
+    public void AddItem(InventoryItem inventoryItem, bool serialize = true)
     {
         if (m_Items == null)
             return;
@@ -141,15 +141,26 @@ public class Inventory : MonoBehaviour
             ItemAddedEvent(inventoryItem);
 
         Debug.Log("Inventory: Added " + inventoryItem.Amount + " " + inventoryItem);
+
+        if (serialize)
+            SaveGameManager.Instance.SerializeInventory();
     }
 
-    public void UseItem(InventoryItem item)
+    private void RemoveItem(InventoryItem inventoryItem, bool serialize = true)
     {
         if (m_Items == null)
             return;
 
-        if (m_Items.Contains(item))
-            item.Use();
+        inventoryItem.UpdateEvent -= OnInventoryItemUpdatedEvent;
+        inventoryItem.DestroyEvent -= OnInventoryItemDestroyed;
+        m_Items.Remove(inventoryItem);
+
+        //Send trough
+        if (ItemRemovedEvent != null)
+            ItemRemovedEvent(inventoryItem);
+
+        if (serialize)
+            SaveGameManager.Instance.SerializeInventory();
     }
 
     //Events
@@ -162,23 +173,16 @@ public class Inventory : MonoBehaviour
 
     private void OnInventoryItemDestroyed(InventoryItem inventoryItem)
     {
-        if (m_Items == null)
-            return;
-
-        inventoryItem.UpdateEvent -= OnInventoryItemUpdatedEvent;
-        inventoryItem.DestroyEvent -= OnInventoryItemDestroyed;
-        m_Items.Remove(inventoryItem);
-
-        //Send trough
-        if (ItemRemovedEvent != null)
-            ItemRemovedEvent(inventoryItem);
+        RemoveItem(inventoryItem);
     }
 
     public void OnNewUser()
     {
         //TEMP
-        AddItem(m_ItemList.GetItemDefinition(0), 1);
-        AddItem(m_ItemList.GetItemDefinition(1), 1);
+        AddItem(m_ItemList.GetItemDefinition(0), 1, false);
+        AddItem(m_ItemList.GetItemDefinition(1), 1, false);
+
+        SaveGameManager.Instance.SerializeInventory();
     }
 
     public void Serialize(JSONNode rootNode)
