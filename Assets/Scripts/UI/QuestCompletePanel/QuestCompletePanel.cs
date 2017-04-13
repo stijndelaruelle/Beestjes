@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class QuestCompletePanel : MonoBehaviour
+public class QuestCompletePanel : IVisible
 {
     [SerializeField]
     private QuestManager m_QuestManager;
     private Quest m_Quest;
-
-    [SerializeField]
-    private GameObject m_Visuals; //Workaround so this object can subscribe itself to the picture camera event.
 
     [SerializeField]
     private Text m_Title;
@@ -50,16 +47,6 @@ public class QuestCompletePanel : MonoBehaviour
 
         //Reward panel
         m_QuestRewardPanel.Initialize(m_Quest);
-    }
-
-    public void Show()
-    {
-        m_Visuals.SetActive(true);
-    }
-
-    public void Hide()
-    {
-        m_Visuals.SetActive(false);
     }
 
     //Events

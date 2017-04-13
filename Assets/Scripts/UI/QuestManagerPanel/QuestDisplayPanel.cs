@@ -15,15 +15,13 @@ public class QuestDisplayPanel : MonoBehaviour
     private PictureDisplay m_PictureDisplay;
 
     [SerializeField]
+    private Text m_Description;
+
+    [SerializeField]
     private Text m_DeadlineText;
 
     [SerializeField]
     private CountdownTimerText m_CountdownTimerText;
-
-    private void Start()
-    {
-        m_Quest.QuestSelectedPictureChangedEvent += OnQuestSelectedPictureChanged;
-    }
 
     private void OnDestroy()
     {
@@ -33,7 +31,14 @@ public class QuestDisplayPanel : MonoBehaviour
 
     public void Initialize(Quest Quest)
     {
+        if (m_Quest != null)
+        {
+            m_Quest.QuestSelectedPictureChangedEvent -= OnQuestSelectedPictureChanged;
+        }
+
         m_Quest = Quest;
+        m_Quest.QuestSelectedPictureChangedEvent += OnQuestSelectedPictureChanged;
+
         Refresh(m_Quest.SelectedPicture);
     }
 
@@ -47,6 +52,9 @@ public class QuestDisplayPanel : MonoBehaviour
             m_PictureDisplay.Initialize(null);
         else
             m_PictureDisplay.Initialize(picture.Texture);
+
+        //Description
+        m_Description.text = m_Quest.QuestDefinition.Description;
 
         //Deadline
         DateTime deadline = m_Quest.Deadline;

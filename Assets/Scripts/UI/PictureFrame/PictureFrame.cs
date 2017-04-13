@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 
 [RequireComponent (typeof(RectTransform))]
-public class PictureFrame : MonoBehaviour
+public class PictureFrame : IVisible
 {
-    public delegate void BoolDelegate(bool value);
-
     private RectTransform m_RectTransform;
 
     [SerializeField]
@@ -25,23 +23,19 @@ public class PictureFrame : MonoBehaviour
     [SerializeField]
     private MinMaxRange m_SizeRangeHeight;
 
-    public event BoolDelegate VisibilityChangedEvent;
-
     private void Awake()
     {
         m_RectTransform = GetComponent<RectTransform>();
     }
 
-    private void OnEnable()
+    public void Start()
     {
-        if (VisibilityChangedEvent != null)
-            VisibilityChangedEvent(true);
+        Hide();
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        if (VisibilityChangedEvent != null)
-            VisibilityChangedEvent(false);
+        Hide();
     }
 
     //Mutators
@@ -74,7 +68,7 @@ public class PictureFrame : MonoBehaviour
 
         return usedValues;
     }
-    
+
     //Accessors
     public Rect GetRect()
     {

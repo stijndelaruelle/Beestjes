@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LastPictureTakenPanel : MonoBehaviour
+public class LastPictureTakenPanel : IVisible
 {
     [SerializeField]
     private PictureCamera m_PictureCamera;
-
-    [SerializeField]
-    private GameObject m_Visuals; //Workaround so this object can subscribe itself to the picture camera event.
 
     public void Start()
     {
@@ -25,15 +22,5 @@ public class LastPictureTakenPanel : MonoBehaviour
     private void OnPictureTaken(Picture picture)
     {
         Show();
-    }
-
-    public void Show()
-    {
-        m_Visuals.SetActive(true);
-    }
-
-    public void Hide()
-    {
-        m_Visuals.SetActive(false);
     }
 }

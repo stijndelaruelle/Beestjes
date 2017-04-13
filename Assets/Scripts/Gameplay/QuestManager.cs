@@ -16,6 +16,9 @@ public class Quest
         get { return m_QuestDefinition; }
     }
 
+    //TODO: Add starttime so we can't add pictures that we've already taken!
+    //private DateTime m_StartTime;
+
     private DateTime m_Deadline;
     public DateTime Deadline
     {
@@ -59,8 +62,11 @@ public class Quest
         {
             if (m_SelectedPicture != null)
             {
-                if (QuestCompleteEvent != null)
-                    QuestCompleteEvent(this);
+                if (m_SelectedPicture.Texture != null)
+                {
+                    if (QuestCompleteEvent != null)
+                        QuestCompleteEvent(this);
+                }
             }
             else
             {

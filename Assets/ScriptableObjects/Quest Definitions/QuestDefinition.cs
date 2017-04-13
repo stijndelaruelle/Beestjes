@@ -16,6 +16,14 @@ public class QuestDefinition : ScriptableObject
 
     [Space(5)]
     [SerializeField]
+    private string m_Description;
+    public string Description
+    {
+        get { return m_Description; }
+    }
+
+    [Space(5)]
+    [SerializeField]
     private Vector3 m_DeadlineTime;
     public Vector3 DeadlineTime
     {
