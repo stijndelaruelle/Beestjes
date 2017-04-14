@@ -11,22 +11,22 @@ public class IVisible : MonoBehaviour
 
     public event BoolDelegate VisibilityChangedEvent;
 
-    public void Show()
+    public virtual void Show()
     {
         SetVisibility(true, true);
     }
 
-    public void Hide()
+    public virtual void Hide()
     {
         SetVisibility(false, true);
     }
 
-    public void Show(bool fireEvent)
+    public virtual void Show(bool fireEvent)
     {
         SetVisibility(true, fireEvent);
     }
 
-    public void Hide(bool fireEvent)
+    public virtual void Hide(bool fireEvent)
     {
         SetVisibility(false, fireEvent);
     }

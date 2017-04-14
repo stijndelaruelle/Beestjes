@@ -1,0 +1,19 @@
+{ 
+  "Quests": [ 
+    { 
+      "quest_id": 1, 
+      "start_time": "13/04/2017 06:50:00", 
+      "end_time": "13/04/2017 07:00:00", 
+      "selected_picture": { 
+        "texture_path": "E:\\Unity Projects\\Beestjes\\Beestjes\\SaveGames\\Beestjes\\picture_13-04-2017_06-50-00.png", 
+        "timestamp": "13/04/2017 06:50:00", 
+        "score": 234, 
+        "tags": [ 
+          "Bush_3_Degrade(Clone)", 
+          "Animal_Konijn", 
+          "Animal_Eekhoorn"
+          ]
+        }
+      }
+    ]
+  }

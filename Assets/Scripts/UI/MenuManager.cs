@@ -1,26 +1,42 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MenuManager : MonoBehaviour
+public class MenuManager : IVisible
 {
-    //TODO: Add history of panels
-    private IVisible m_Active;
+    private Stack<IVisible> m_PanelStack;
+
+    private void Awake()
+    {
+        m_PanelStack = new Stack<IVisible>();
+    }
 
     public void Show(IVisible visibleObject)
     {
-        if (m_Active != null)
+        if (m_PanelStack.Count > 0)
         {
-            m_Active.Hide(false);
+            Hide(m_PanelStack.Peek());
         }
 
         visibleObject.Show();
-        m_Active = visibleObject;
+
+        m_PanelStack.Push(visibleObject);
+
+        if (m_PanelStack.Count == 1)
+            FireVisibilityChangedEvent(true);
     }
 
     public void Hide(IVisible visibleObject)
     {
         visibleObject.Hide();
-        m_Active = null;
+
+        if (m_PanelStack.Count > 0)
+        {
+            m_PanelStack.Pop();
+
+            if (m_PanelStack.Count == 0)
+                FireVisibilityChangedEvent(false);
+        }
     }
 }

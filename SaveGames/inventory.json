@@ -1,0 +1,16 @@
+{ 
+  "inventory": [ 
+    { 
+      "item_id": 0, 
+      "amount": 1
+      }, 
+    { 
+      "item_id": 1, 
+      "amount": 1
+      }, 
+    { 
+      "item_id": 1, 
+      "amount": 1
+      }
+    ]
+  }

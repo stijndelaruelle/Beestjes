@@ -1,0 +1,23 @@
+{ 
+  "last_tick_time": "13/04/2017 06:50:00", 
+  "world_objects": [ 
+    { 
+      "prefab_name": "Bush_3_Degrade", 
+      "end_time": "14/04/2017 06:50:00", 
+      "position_x": 0, 
+      "position_y": -1, 
+      "position_z": 0, 
+      "is_flipped": false, 
+      "animal_slots": [ 
+        { 
+          "animal_id": 1, 
+          "end_time": "13/04/2017 06:55:47"
+          }, 
+        { 
+          "animal_id": 0, 
+          "end_time": "13/04/2017 07:00:22"
+          }
+        ]
+      }
+    ]
+  }

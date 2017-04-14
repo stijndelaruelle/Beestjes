@@ -8,4 +8,9 @@ public class PictureAlbumPanel : IVisible
     {
         Hide();
     }
+
+    private void OnDestroy()
+    {
+        Hide();
+    }
 }

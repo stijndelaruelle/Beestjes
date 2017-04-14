@@ -16,13 +16,16 @@ public class Quest
         get { return m_QuestDefinition; }
     }
 
-    //TODO: Add starttime so we can't add pictures that we've already taken!
-    //private DateTime m_StartTime;
-
-    private DateTime m_Deadline;
-    public DateTime Deadline
+    private DateTime m_StartTime;
+    public DateTime StartTime
     {
-        get { return m_Deadline; }
+        get { return m_StartTime; }
+    }
+
+    private DateTime m_EndTime;
+    public DateTime EndTime
+    {
+        get { return m_EndTime; }
     }
 
     private Picture m_SelectedPicture;
@@ -41,16 +44,18 @@ public class Quest
     {
         m_QuestListDefinition = questListDefinition;
         m_QuestDefinition = null;
-        m_Deadline = DateTime.MinValue;
+        m_StartTime = DateTime.MinValue;
+        m_EndTime = DateTime.MinValue;
 
         m_Inventory = inventory;
     }
 
-    public Quest(QuestListDefinition questListDefinition, QuestDefinition questDefinition, DateTime deadline, Inventory inventory)
+    public Quest(QuestListDefinition questListDefinition, QuestDefinition questDefinition, DateTime startTime, DateTime endTime, Inventory inventory)
     {
         m_QuestListDefinition = questListDefinition;
         m_QuestDefinition = questDefinition;
-        m_Deadline = deadline;
+        m_StartTime = startTime;
+        m_EndTime = endTime;
 
         m_Inventory = inventory;
     }
@@ -58,7 +63,7 @@ public class Quest
     public void CheckIfComplete(DateTime dateTime)
     {
         //Determine if the quest ended
-        if (dateTime >= m_Deadline)
+        if (dateTime >= m_EndTime)
         {
             if (m_SelectedPicture != null)
             {
@@ -107,8 +112,11 @@ public class Quest
         int id = m_QuestListDefinition.GetID(m_QuestDefinition);
         questNode.Add("quest_id", new JSONData(id));
 
-        //Deadline
-        questNode.Add("deadline", m_Deadline.ToString("dd/MM/yyyy HH:mm:ss"));
+        //Starttime
+        questNode.Add("start_time", m_StartTime.ToString("dd/MM/yyyy HH:mm:ss"));
+
+        //Endtime
+        questNode.Add("end_time", m_EndTime.ToString("dd/MM/yyyy HH:mm:ss"));
 
         //Selected picture
         if (m_SelectedPicture != null)
@@ -126,17 +134,31 @@ public class Quest
         int id = (questNode["quest_id"].AsInt);
         m_QuestDefinition = m_QuestListDefinition.GetQuestDefinition(id);
 
-        //Deadline
-        JSONNode timestampNode = questNode["deadline"];
-        if (timestampNode != null)
+        //Start Time
+        JSONNode startTimeNode = questNode["start_time"];
+        if (startTimeNode != null)
         {
             try
             {
-                m_Deadline = DateTime.ParseExact(timestampNode.Value, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                m_StartTime = DateTime.ParseExact(startTimeNode.Value, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
             }
             catch (Exception e)
             {
-                throw new System.Exception("The quest save file has an invalid \"deadline\" node! Expected DateTime. Source: " + timestampNode.ToString() + " Exception: " + e.Message);
+                throw new System.Exception("The quest save file has an invalid \"start_time\" node! Expected DateTime. Source: " + startTimeNode.ToString() + " Exception: " + e.Message);
+            }
+        }
+
+        //Deadline
+        JSONNode endTimeNode = questNode["end_time"];
+        if (endTimeNode != null)
+        {
+            try
+            {
+                m_EndTime = DateTime.ParseExact(endTimeNode.Value, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
+                throw new System.Exception("The quest save file has an invalid \"end_time\" node! Expected DateTime. Source: " + endTimeNode.ToString() + " Exception: " + e.Message);
             }
         }
 
@@ -306,7 +328,7 @@ public class QuestManager : MonoBehaviour
 
         //TEMP, START A NEW QUEST
         QuestDefinition firstQuestDefinition = m_QuestListDefinition.GetQuestDefinition(1);
-        quest = new Quest(m_QuestListDefinition, firstQuestDefinition, firstQuestDefinition.CalculateDeadline(), m_Inventory);
+        quest = new Quest(m_QuestListDefinition, firstQuestDefinition, GameClock.Instance.GetDateTime(), firstQuestDefinition.CalculateDeadline(), m_Inventory);
         quest.QuestCompleteEvent += OnQuestCompleted;
         quest.QuestRemovedEvent += OnQuestRewardClaimed;
 
@@ -327,7 +349,7 @@ public class QuestManager : MonoBehaviour
     {
         //TEMP
         QuestDefinition firstQuestDefinition = m_QuestListDefinition.GetQuestDefinition(0);
-        Quest quest = new Quest(m_QuestListDefinition, firstQuestDefinition, firstQuestDefinition.CalculateDeadline(), m_Inventory);
+        Quest quest = new Quest(m_QuestListDefinition, firstQuestDefinition, GameClock.Instance.GetDateTime(), firstQuestDefinition.CalculateDeadline(), m_Inventory);
         quest.QuestCompleteEvent += OnQuestCompleted;
         quest.QuestRemovedEvent += OnQuestRewardClaimed;
 
